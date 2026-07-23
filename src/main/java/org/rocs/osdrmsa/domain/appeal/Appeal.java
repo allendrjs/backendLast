@@ -13,7 +13,7 @@ public class Appeal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "APPEAL ID", nullable = false, updatable = false)
+    @Column(name = "appealID", nullable = false, updatable = false)
     private long appealID;
 
     @ManyToOne
@@ -24,19 +24,19 @@ public class Appeal {
     @JoinColumn(name = "enrollmentID", nullable = false)
     private Enrollment enrollment;
 
-    @Column(name = "MESSAGE", nullable = false)
+    @Column(name = "message", nullable = false)
     private String message;
 
-    @Column(name = "DATE FILED", nullable = false)
+    @Column(name = "dateFiled", nullable = false)
     private Date dateFiled;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "STATUS", nullable = false)
+    @Column(name = "status", nullable = false)
     private AppealStatus status;
 
-    @Column(name = "DATE PROCESSED")
+    @Column(name = "dateProcessed")
     private Date dateProcessed;
 
-    @Column(name = "REMARKS")
+    @Column(name = "remarks")
     private String remarks;
 }

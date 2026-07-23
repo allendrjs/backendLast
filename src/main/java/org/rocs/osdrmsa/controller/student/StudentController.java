@@ -18,7 +18,7 @@ public class StudentController {
     private final StudentService studentService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<List<Student>> getAll(
             @RequestParam(required = false) Department department) {
         if (department != null) {
@@ -28,8 +28,8 @@ public class StudentController {
     }
 
     @GetMapping("/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT', 'DEPARTMENT_HEAD') "
-            + "or (hasRole('STUDENT') and @access.isSelfStudent(#studentId))")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF') "
+            + "or (hasRole('USER') and @access.isSelfStudent(#studentId))")
     public ResponseEntity<Student> getById(@PathVariable String studentId) {
         return studentService.getById(studentId)
                 .map(ResponseEntity::ok)
@@ -37,20 +37,20 @@ public class StudentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Student> create(@RequestBody Student student) {
         return ResponseEntity.ok(studentService.create(student));
     }
 
     @PutMapping("/{studentId}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Student> update(
             @PathVariable String studentId, @RequestBody Student student) {
         return ResponseEntity.ok(studentService.update(studentId, student));
     }
 
     @DeleteMapping("/{studentId}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable String studentId) {
         studentService.delete(studentId);
         return ResponseEntity.noContent().build();

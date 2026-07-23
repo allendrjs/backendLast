@@ -10,7 +10,7 @@ import org.rocs.osdrmsa.domain.person.Person;
 public class Employee {
 
     @Id
-    @Column(name = "EMPLOYEE ID", nullable = false, updatable = false)
+    @Column(name = "employeeID", nullable = false, updatable = false)
     private String employeeId;
 
     @OneToOne
@@ -21,7 +21,7 @@ public class Employee {
     @Column(name = "department")
     private Department department;
 
-    @Column(name = "EMPLOYEE ROLE", nullable = false)
+    @Column(name = "employeeRole")
     private String employeeRole;
 
 }

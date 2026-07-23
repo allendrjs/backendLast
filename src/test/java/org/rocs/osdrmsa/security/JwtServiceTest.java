@@ -16,7 +16,7 @@ class JwtServiceTest {
     private Login sampleLogin() {
         Login login = new Login();
         login.setUsername("jdoe");
-        login.setRole(Role.PREFECT);
+        login.setRole(Role.ROLE_PREFECT);
         return login;
     }
 
@@ -28,7 +28,7 @@ class JwtServiceTest {
 
         assertThat(decoded).isPresent();
         assertThat(jwtService.extractUsername(decoded.get())).isEqualTo("jdoe");
-        assertThat(jwtService.extractRole(decoded.get())).isEqualTo("PREFECT");
+        assertThat(jwtService.extractRole(decoded.get())).isEqualTo("ROLE_PREFECT");
     }
 
     @Test

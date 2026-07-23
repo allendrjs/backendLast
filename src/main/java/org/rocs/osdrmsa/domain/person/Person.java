@@ -9,12 +9,12 @@ public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PERSON ID", nullable = false, updatable = false)
+    @Column(name = "personID", nullable = false, updatable = false)
     private long personID;
-    @Column(name = "LASTNAME", nullable = false)
+    @Column(name = "lastName", nullable = false)
     private String lastName;
-    @Column(name = "FIRSTNAME", nullable = false)
+    @Column(name = "firstName", nullable = false)
     private String firstName;
-    @Column(name = "MIDDLENAME", nullable = false)
+    @Column(name = "middleName")
     private String middleName;
 }

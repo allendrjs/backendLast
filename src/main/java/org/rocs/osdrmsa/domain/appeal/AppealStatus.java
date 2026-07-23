@@ -1,7 +1,7 @@
 package org.rocs.osdrmsa.domain.appeal;
 
 public enum AppealStatus {
-    FILED,
+    PENDING,
     UNDER_REVIEW,
     APPROVED,
     DENIED

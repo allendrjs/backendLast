@@ -5,7 +5,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.rocs.osdrmsa.domain.login.Login;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -38,10 +40,23 @@ public class JwtService {
     private final Algorithm algorithm;
     private final long expirationMinutes;
 
+    /**
+     * Spring-facing constructor. Reads the real active-profiles list off
+     * Environment rather than the "spring.profiles.active" property,
+     * because @ActiveProfiles in tests sets Environment.getActiveProfiles()
+     * directly without ever populating that property - a @Value lookup on
+     * it stays empty even when a profile is genuinely active.
+     */
+    @Autowired
     public JwtService(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration-minutes:60}") long expirationMinutes,
-            @Value("${spring.profiles.active:}") String activeProfiles) {
+            Environment environment) {
+        this(secret, expirationMinutes, String.join(",", environment.getActiveProfiles()));
+    }
+
+    /** Testable constructor - unit tests call this directly with a plain profiles string. */
+    JwtService(String secret, long expirationMinutes, String activeProfiles) {
 
         if (INSECURE_DEFAULT_SECRET.equals(secret) && !isExemptProfile(activeProfiles)) {
             throw new IllegalStateException(

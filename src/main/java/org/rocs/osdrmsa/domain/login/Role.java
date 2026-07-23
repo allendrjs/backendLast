@@ -2,8 +2,8 @@ package org.rocs.osdrmsa.domain.login;
 
 public enum Role {
 
-    ADMINISTRATOR,
-    PREFECT,
-    DEPARTMENT_HEAD,
-    STUDENT
+    ROLE_ADMIN,
+    ROLE_PREFECT,
+    ROLE_STAFF,
+    ROLE_USER
 }

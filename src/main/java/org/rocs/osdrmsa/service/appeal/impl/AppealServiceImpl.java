@@ -21,15 +21,20 @@ import java.util.Set;
 public class AppealServiceImpl implements AppealService {
 
     /**
-     * Legal forward transitions. An appeal starts at FILED and can only
-     * move to UNDER_REVIEW, then to a terminal APPROVED/DENIED state.
-     * There is no path back to an earlier state.
+     * Legal forward transitions. An appeal starts at PENDING and can move
+     * either straight to a terminal APPROVED/DENIED state, or through an
+     * optional UNDER_REVIEW step first. Direct PENDING -> APPROVED/DENIED
+     * matches the prefect desktop app's existing two-step review workflow
+     * (see ADR-001); UNDER_REVIEW stays available for any client that wants
+     * an explicit "under review" state. There is no path back to an earlier
+     * state.
      */
     private static final Map<AppealStatus, Set<AppealStatus>> ALLOWED_TRANSITIONS =
             new EnumMap<>(AppealStatus.class);
 
     static {
-        ALLOWED_TRANSITIONS.put(AppealStatus.FILED, EnumSet.of(AppealStatus.UNDER_REVIEW));
+        ALLOWED_TRANSITIONS.put(AppealStatus.PENDING,
+                EnumSet.of(AppealStatus.UNDER_REVIEW, AppealStatus.APPROVED, AppealStatus.DENIED));
         ALLOWED_TRANSITIONS.put(AppealStatus.UNDER_REVIEW,
                 EnumSet.of(AppealStatus.APPROVED, AppealStatus.DENIED));
         ALLOWED_TRANSITIONS.put(AppealStatus.APPROVED, EnumSet.noneOf(AppealStatus.class));
@@ -52,7 +57,7 @@ public class AppealServiceImpl implements AppealService {
         }
 
         appeal.setAppealID(0);
-        appeal.setStatus(AppealStatus.FILED);
+        appeal.setStatus(AppealStatus.PENDING);
         appeal.setDateFiled(new Date());
         appeal.setDateProcessed(null);
         appeal.setRemarks(null);

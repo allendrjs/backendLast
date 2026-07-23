@@ -40,7 +40,7 @@ class LoginServiceImplTest {
         activeLogin = new Login();
         activeLogin.setUsername("jdoe");
         activeLogin.setPassword("hashed-password");
-        activeLogin.setRole(Role.STUDENT);
+        activeLogin.setRole(Role.ROLE_USER);
         activeLogin.setActive(true);
         activeLogin.setLocked(false);
     }

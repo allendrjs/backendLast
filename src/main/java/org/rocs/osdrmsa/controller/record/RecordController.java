@@ -32,7 +32,7 @@ public class RecordController {
     private final RecordService recordService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<RecordResponse> create(@RequestBody RecordCreateRequest request) {
         Record created = recordService.createStudentRecord(RecordDtoMapper.toEntity(request));
         if (created == null) {
@@ -42,7 +42,7 @@ public class RecordController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<RecordResponse> update(@RequestBody RecordUpdateRequest request) {
         Record updated = recordService.updateStudentRecord(RecordDtoMapper.toEntity(request));
         if (updated == null) {
@@ -52,7 +52,7 @@ public class RecordController {
     }
 
     @PatchMapping("/{recordId}/resolve")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<RecordResponse> resolve(@PathVariable Long recordId) {
         Record resolved = recordService.resolveRecord(recordId);
         if (resolved == null) {
@@ -62,8 +62,8 @@ public class RecordController {
     }
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT', 'DEPARTMENT_HEAD') "
-            + "or (hasRole('STUDENT') and @access.isSelfStudent(#studentId))")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF') "
+            + "or (hasRole('USER') and @access.isSelfStudent(#studentId))")
     public ResponseEntity<List<RecordResponse>> getByStudent(@PathVariable String studentId) {
         return ResponseEntity.ok(
                 recordService.getRecordByStudentId(studentId).stream()
@@ -72,7 +72,7 @@ public class RecordController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<List<RecordResponse>> getByDepartment(
             @RequestParam Department department,
             @RequestParam String schoolYear) {

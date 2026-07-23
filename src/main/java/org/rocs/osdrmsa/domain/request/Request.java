@@ -11,29 +11,29 @@ public class Request {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "REQUEST ID", nullable = false, updatable = false)
+    @Column(name = "requestID", nullable = false, updatable = false)
     private long requestID;
 
-    @Column(name = "EMPLOYEE ID", nullable = false)
+    @Column(name = "employeeID", nullable = false)
     private String employeeID;
 
-    @Column(name = "DETAILS", nullable = false)
+    @Column(name = "details", nullable = false)
     private String details;
 
-    @Column(name = "MESSAGE", nullable = false)
+    @Column(name = "message", nullable = false)
     private String message;
 
-    @Column(name = "TYPE", nullable = false)
+    @Column(name = "type", nullable = false)
     private String type;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "STATUS", nullable = false)
+    @Column(name = "status", nullable = false)
     private RequestStatus status;
 
-    @Column(name = "DATE OF PROCESS")
+    @Column(name = "dateProcessed")
     private Date dateProcessed;
 
-    @Column(name = "REMARKS")
+    @Column(name = "remarks")
     private String remarks;
 
 }

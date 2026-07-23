@@ -29,14 +29,14 @@ public class AppealController {
     private final AppealService appealService;
 
     @PostMapping
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<AppealResponse> file(@RequestBody AppealFileRequest request) {
         Appeal filed = appealService.fileAppeal(AppealDtoMapper.toEntity(request));
         return ResponseEntity.ok(AppealDtoMapper.toResponse(filed));
     }
 
     @PatchMapping("/{appealId}/review")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<AppealResponse> review(
             @PathVariable Long appealId, @RequestBody AppealReviewRequest request) {
         Appeal reviewed = appealService.reviewAppeal(appealId, request.status(), request.remarks());
@@ -44,8 +44,8 @@ public class AppealController {
     }
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT') "
-            + "or (hasRole('STUDENT') and @access.isSelfStudent(#studentId))")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT') "
+            + "or (hasRole('USER') and @access.isSelfStudent(#studentId))")
     public ResponseEntity<List<AppealResponse>> getByStudent(@PathVariable String studentId) {
         return ResponseEntity.ok(
                 appealService.getByStudentId(studentId).stream()
@@ -54,7 +54,7 @@ public class AppealController {
     }
 
     @GetMapping("/record/{recordId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<List<AppealResponse>> getByRecord(@PathVariable Long recordId) {
         return ResponseEntity.ok(
                 appealService.getByRecordId(recordId).stream()

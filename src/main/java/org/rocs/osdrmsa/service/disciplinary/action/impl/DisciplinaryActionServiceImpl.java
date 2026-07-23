@@ -29,7 +29,18 @@ public class DisciplinaryActionServiceImpl implements DisciplinaryActionService 
 
     @Override
     public DisciplinaryAction create(DisciplinaryAction action) {
-        action.setActionId(0);
+        // actionID is a plain (non-identity) primary key in the DB script -
+        // manually assigned, not auto-generated - so the caller must supply
+        // a unique actionId. Unlike the other create() methods in this
+        // codebase, we do NOT zero it out here: DisciplinaryAction has no
+        // @GeneratedValue, so save() would either collide on id 0 after the
+        // first call or silently overwrite whatever row already has id 0.
+        if (action.getActionId() == 0) {
+            throw new IllegalArgumentException("actionId is required and must be unique.");
+        }
+        if (disciplinaryActionRepository.existsById(action.getActionId())) {
+            throw new IllegalArgumentException("Disciplinary action " + action.getActionId() + " already exists.");
+        }
         return disciplinaryActionRepository.save(action);
     }
 

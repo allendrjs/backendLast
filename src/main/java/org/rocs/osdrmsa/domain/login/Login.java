@@ -2,6 +2,8 @@ package org.rocs.osdrmsa.domain.login;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.rocs.osdrmsa.domain.person.Person;
 import org.rocs.osdrmsa.domain.person.employee.Employee;
 
@@ -13,34 +15,40 @@ public class Login {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "LOGINID")
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "USERNAME", nullable = false, unique = true)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(name = "PASSWORD", nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "JOIN_DATE", nullable = false, updatable = false)
+    @Column(name = "join_date", nullable = false, updatable = false)
     private Date joinDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "LAST_LOGIN_DATE")
+    @Column(name = "last_login_date")
     private Date lastLoginDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ROLE", nullable = false)
+    @Column(name = "role", nullable = false)
     private Role role;
 
-    @Column(name = "AUTHORITIES")
+    @Column(name = "authorities")
     private String authorities;
 
-    @Column(name = "IS_ACTIVE", nullable = false)
+    // Oracle 23ai added a native BOOLEAN column type, so Hibernate 7's Oracle
+    // dialect now maps Java boolean -> SQL BOOLEAN by default. The DDL script
+    // predates that and defines these as NUMBER(1,0), so we force the JDBC
+    // type back to numeric to match the actual column type in the DB.
+    @JdbcTypeCode(SqlTypes.INTEGER)
+    @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
-    @Column(name = "IS_LOCKED", nullable = false)
+    @JdbcTypeCode(SqlTypes.INTEGER)
+    @Column(name = "is_locked", nullable = false)
     private boolean locked = false;
 
     @OneToOne

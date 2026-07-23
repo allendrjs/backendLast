@@ -27,14 +27,14 @@ public class RequestController {
     private final RequestService requestService;
 
     @PostMapping
-    @PreAuthorize("hasRole('DEPARTMENT_HEAD')")
+    @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<RequestResponse> submit(@RequestBody RequestSubmitRequest request) {
         Request submitted = requestService.submitRequest(RequestDtoMapper.toEntity(request));
         return ResponseEntity.ok(RequestDtoMapper.toResponse(submitted));
     }
 
     @PatchMapping("/{requestId}/decision")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<RequestResponse> decide(
             @PathVariable Long requestId, @RequestBody RequestDecisionRequest decision) {
         Request processed = requestService.processRequest(requestId, decision.decision(), decision.remarks());
@@ -42,7 +42,7 @@ public class RequestController {
     }
 
     @GetMapping("/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT', 'DEPARTMENT_HEAD')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
     public ResponseEntity<List<RequestResponse>> getByEmployee(@PathVariable String employeeId) {
         return ResponseEntity.ok(
                 requestService.getByEmployeeId(employeeId).stream()
@@ -51,7 +51,7 @@ public class RequestController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<List<RequestResponse>> getAll(
             @RequestParam(required = false) RequestStatus status) {
         if (status != null) {

@@ -10,21 +10,28 @@ import org.rocs.osdrmsa.domain.person.Person;
 public class Student {
 
     @Id
-    @Column(name = "STUDENT ID", nullable = false, updatable = false)
+    @Column(name = "studentID", nullable = false, updatable = false)
     private String studentId;
 
     @OneToOne
     @JoinColumn(name = "personID")
     private Person person;
 
-    @Column(name = "ADDRESS", nullable = false)
+    @Column(name = "address")
     private String address;
 
-    @Column(name = "STUDENT TYPE", nullable = false)
+    @Column(name = "studentType")
     private String studentType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "department")
     private Department department;
+
+    @ManyToMany
+    @JoinTable(
+            name = "studentGuardian",
+            joinColumns = @JoinColumn(name = "studentID"),
+            inverseJoinColumns = @JoinColumn(name = "guardianID"))
+    private java.util.List<org.rocs.osdrmsa.domain.person.guardian.Guardian> guardians = new java.util.ArrayList<>();
 
 }

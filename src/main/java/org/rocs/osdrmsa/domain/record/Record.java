@@ -15,7 +15,7 @@ public class Record {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "RECORD ID", nullable = false, updatable = false)
+    @Column(name = "recordID", nullable = false, updatable = false)
     private long recordId;
 
     @ManyToOne
@@ -31,7 +31,7 @@ public class Record {
     private Offense offense;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "DATE OF VIOLATION", nullable = false)
+    @Column(name = "dateOfViolation", nullable = false)
     private Date dateOfViolation;
 
     @ManyToOne
@@ -39,14 +39,14 @@ public class Record {
     private DisciplinaryAction action;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "DATE OF RESOLUTION")
+    @Column(name = "dateOfResolution")
     private Date dateOfResolution;
 
-    @Column(name = "REMARKS")
+    @Column(name = "remarks")
     private String remarks;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "RECORD STATUS", nullable = false)
+    @Column(name = "status", nullable = false)
     private RecordStatus status;
 
 }

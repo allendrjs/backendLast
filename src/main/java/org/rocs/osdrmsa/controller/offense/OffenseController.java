@@ -35,19 +35,19 @@ public class OffenseController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Offense> create(@RequestBody Offense offense) {
         return ResponseEntity.ok(offenseService.create(offense));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Offense> update(@PathVariable Long id, @RequestBody Offense offense) {
         return ResponseEntity.ok(offenseService.update(id, offense));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         offenseService.delete(id);
         return ResponseEntity.noContent().build();

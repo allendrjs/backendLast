@@ -9,16 +9,16 @@ public class Offense {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "OFFENSE ID", nullable = false, updatable = false)
+    @Column(name = "offenseID", nullable = false, updatable = false)
     private long offenseId;
 
-    @Column(name = "OFFENSE", nullable = false)
+    @Column(name = "offense")
     private String offense;
 
-    @Column(name = "OFFENSE TYPE", nullable = false)
+    @Column(name = "type")
     private String type;
 
-    @Column(name = "DESCRIPTION", nullable = false)
+    @Column(name = "description")
     private String description;
 
 }

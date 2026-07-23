@@ -19,13 +19,13 @@ public class Enrollment {
     @JoinColumn(name = "studentID", nullable = false)
     private Student student;
 
-    @Column(name = "SCHOOL YEAR", nullable = false)
+    @Column(name = "schoolYear")
     private String schoolYear;
 
-    @Column(name = "STUDENT LEVEL", nullable = false)
+    @Column(name = "studentLevel")
     private String studentLevel;
 
-    @Column(name = "SECTION", nullable = false)
+    @Column(name = "section")
     private String section;
 
     @Enumerated(EnumType.STRING)

@@ -17,13 +17,13 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<List<Enrollment>> getAllLatest() {
         return ResponseEntity.ok(enrollmentService.getAllLatestEnrollments());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<Enrollment> getById(@PathVariable Long id) {
         return enrollmentService.getEnrollmentsByStudentId(id)
                 .map(ResponseEntity::ok)
@@ -31,8 +31,8 @@ public class EnrollmentController {
     }
 
     @GetMapping("/student/{studentId}/latest")
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'PREFECT', 'DEPARTMENT_HEAD') "
-            + "or (hasRole('STUDENT') and @access.isSelfStudent(#studentId))")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF') "
+            + "or (hasRole('USER') and @access.isSelfStudent(#studentId))")
     public ResponseEntity<Enrollment> getLatestByStudentId(@PathVariable String studentId) {
         Enrollment enrollment = enrollmentService.getLatestEnrollmentByStudentId(studentId);
         if (enrollment == null) {

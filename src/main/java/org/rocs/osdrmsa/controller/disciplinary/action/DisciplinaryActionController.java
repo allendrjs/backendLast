@@ -31,20 +31,20 @@ public class DisciplinaryActionController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DisciplinaryAction> create(@RequestBody DisciplinaryAction action) {
         return ResponseEntity.ok(disciplinaryActionService.create(action));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DisciplinaryAction> update(
             @PathVariable Long id, @RequestBody DisciplinaryAction action) {
         return ResponseEntity.ok(disciplinaryActionService.update(id, action));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         disciplinaryActionService.delete(id);
         return ResponseEntity.noContent().build();

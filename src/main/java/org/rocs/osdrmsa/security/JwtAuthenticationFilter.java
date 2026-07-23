@@ -54,7 +54,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();
                 if (role != null) {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+                    // Role enum constants already carry the "ROLE_" prefix
+                    // (ROLE_ADMIN, ROLE_PREFECT, ROLE_STAFF, ROLE_USER), so
+                    // it must not be prepended again here - @PreAuthorize's
+                    // hasRole()/hasAnyRole() add their own "ROLE_" prefix to
+                    // the short suffix they're given, and this authority is
+                    // what they match against.
+                    authorities.add(new SimpleGrantedAuthority(role));
                 }
                 if (rawAuthorities != null && !rawAuthorities.isBlank()) {
                     Arrays.stream(rawAuthorities.split(","))

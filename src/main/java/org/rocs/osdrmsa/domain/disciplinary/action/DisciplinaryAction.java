@@ -8,14 +8,13 @@ import lombok.Data;
 public class DisciplinaryAction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ACTION ID", nullable = false, updatable = false)
+    @Column(name = "actionID", nullable = false, updatable = false)
     private long actionId;
 
-    @Column(name = "ACTION NAME", nullable = false)
+    @Column(name = "action")
     private String actionName;
 
-    @Column(name = "DESCRIPTION", nullable = false)
+    @Column(name = "description")
     private String description;
 
 }

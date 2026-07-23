@@ -41,7 +41,7 @@ class AppealServiceImplTest {
         filedAppeal.setRecord(new Record());
         filedAppeal.setEnrollment(new Enrollment());
         filedAppeal.setMessage("I was not involved in this incident.");
-        filedAppeal.setStatus(AppealStatus.FILED);
+        filedAppeal.setStatus(AppealStatus.PENDING);
     }
 
     @Test
@@ -76,7 +76,7 @@ class AppealServiceImplTest {
 
         Appeal saved = appealService.fileAppeal(appeal);
 
-        assertThat(saved.getStatus()).isEqualTo(AppealStatus.FILED);
+        assertThat(saved.getStatus()).isEqualTo(AppealStatus.PENDING);
         assertThat(saved.getDateFiled()).isNotNull();
         assertThat(saved.getDateProcessed()).isNull();
     }
@@ -94,11 +94,27 @@ class AppealServiceImplTest {
     }
 
     @Test
-    void reviewAppeal_rejectsSkippingUnderReview() {
+    void reviewAppeal_allowsDirectApprovalFromPending() {
         when(appealRepository.findById(1L)).thenReturn(Optional.of(filedAppeal));
+        when(appealRepository.save(any(Appeal.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThatThrownBy(() -> appealService.reviewAppeal(1L, AppealStatus.APPROVED, "skip"))
-                .isInstanceOf(IllegalArgumentException.class);
+        Appeal result = appealService.reviewAppeal(1L, AppealStatus.APPROVED, "Valid excuse.");
+
+        assertThat(result.getStatus()).isEqualTo(AppealStatus.APPROVED);
+        assertThat(result.getDateProcessed()).isNotNull();
+    }
+
+    @Test
+    void reviewAppeal_allowsDirectDenialFromPending() {
+        when(appealRepository.findById(1L)).thenReturn(Optional.of(filedAppeal));
+        when(appealRepository.save(any(Appeal.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Appeal result = appealService.reviewAppeal(1L, AppealStatus.DENIED, "Not sufficient.");
+
+        assertThat(result.getStatus()).isEqualTo(AppealStatus.DENIED);
+        assertThat(result.getDateProcessed()).isNotNull();
     }
 
     @Test
