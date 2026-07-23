@@ -39,12 +39,13 @@ public class Record {
     private DisciplinaryAction action;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "DATE OF RESOLUTION", nullable = false)
+    @Column(name = "DATE OF RESOLUTION")
     private Date dateOfResolution;
 
-    @Column(name = "REMARKS", nullable = false)
+    @Column(name = "REMARKS")
     private String remarks;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "RECORD STATUS", nullable = false)
     private RecordStatus status;
 

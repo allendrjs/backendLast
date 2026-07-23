@@ -31,7 +31,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public Enrollment getLatestEnrollmentByStudentId(String studentId) {
-        return enrollmentRepository.findLatestByStudentIdOrderBySchoolYearDesc(studentId).orElse(null);
+        return enrollmentRepository.findLatestByStudent_StudentIdOrderBySchoolYearDesc(studentId).orElse(null);
     }
 
 }

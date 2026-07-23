@@ -1,0 +1,7 @@
+package org.rocs.osdrmsa.exception;
+
+public class AccountLockedException extends RuntimeException {
+    public AccountLockedException(String message) {
+        super(message);
+    }
+}

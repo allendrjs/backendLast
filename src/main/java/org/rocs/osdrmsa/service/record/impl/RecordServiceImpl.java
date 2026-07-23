@@ -5,17 +5,21 @@ import org.rocs.osdrmsa.domain.department.Department;
 import org.rocs.osdrmsa.domain.record.RecordStatus;
 import org.rocs.osdrmsa.domain.record.Record;
 import org.rocs.osdrmsa.repository.record.RecordRepository;
+import org.rocs.osdrmsa.service.audit.AuditLogService;
 import org.rocs.osdrmsa.service.record.RecordService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 public class RecordServiceImpl implements RecordService {
 
+    private static final String ENTITY_TYPE = "Record";
+
     private final RecordRepository recordRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     public Record createStudentRecord(Record record) {
@@ -32,9 +36,16 @@ public class RecordServiceImpl implements RecordService {
             return null;
         }
 
+        // Force insert rather than merge: a client-supplied non-zero
+        // recordId would otherwise cause Spring Data to treat this as an
+        // update and silently overwrite an existing record (GenerationType
+        // .IDENTITY + non-zero id => isNew() returns false => merge()).
+        record.setRecordId(0);
         record.setStatus(RecordStatus.PENDING);
 
-        return recordRepository.save(record);
+        Record saved = recordRepository.save(record);
+        auditLogService.log("RECORD_CREATED", ENTITY_TYPE, String.valueOf(saved.getRecordId()), null);
+        return saved;
     }
 
     @Override
@@ -53,7 +64,13 @@ public class RecordServiceImpl implements RecordService {
             return null;
         }
 
-        return recordRepository.save(record);
+        if (!recordRepository.existsById(record.getRecordId())) {
+            throw new NoSuchElementException("Record not found: " + record.getRecordId());
+        }
+
+        Record saved = recordRepository.save(record);
+        auditLogService.log("RECORD_UPDATED", ENTITY_TYPE, String.valueOf(saved.getRecordId()), null);
+        return saved;
     }
 
     @Override
@@ -69,7 +86,9 @@ public class RecordServiceImpl implements RecordService {
         record.setStatus(RecordStatus.RESOLVED);
         record.setDateOfResolution(new java.util.Date());
 
-        return recordRepository.save(record);
+        Record saved = recordRepository.save(record);
+        auditLogService.log("RECORD_RESOLVED", ENTITY_TYPE, String.valueOf(saved.getRecordId()), null);
+        return saved;
     }
 
     @Override

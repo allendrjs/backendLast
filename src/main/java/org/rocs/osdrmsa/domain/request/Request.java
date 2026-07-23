@@ -26,13 +26,14 @@ public class Request {
     @Column(name = "TYPE", nullable = false)
     private String type;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false)
     private RequestStatus status;
 
-    @Column(name = "DATE OF PROCESS", nullable = false)
+    @Column(name = "DATE OF PROCESS")
     private Date dateProcessed;
 
-    @Column(name = "REMARKS", nullable = false)
+    @Column(name = "REMARKS")
     private String remarks;
 
 }

@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
-    Optional<Enrollment> findLatestByStudentIdOrderBySchoolYearDesc(String studentId);
+    Optional<Enrollment> findLatestByStudent_StudentIdOrderBySchoolYearDesc(String studentId);
 
 }

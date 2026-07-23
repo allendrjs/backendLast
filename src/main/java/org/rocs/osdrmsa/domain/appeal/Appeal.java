@@ -30,12 +30,13 @@ public class Appeal {
     @Column(name = "DATE FILED", nullable = false)
     private Date dateFiled;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false)
-    private String status;
+    private AppealStatus status;
 
-    @Column(name = "DATE PROCESSED", nullable = false)
+    @Column(name = "DATE PROCESSED")
     private Date dateProcessed;
 
-    @Column(name = "REMARKS", nullable = false)
+    @Column(name = "REMARKS")
     private String remarks;
 }
