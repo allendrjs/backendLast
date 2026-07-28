@@ -27,7 +27,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
     long countByEnrollmentSchoolYear(String schoolYear);
 
     /** Violation count for a single day, used for "today's violations". */
-    long countByDateOfViolation(Date dateOfViolation);
+    long countByDateOfViolation(LocalDate dateOfViolation);
 
     /**
      * Offense names ranked by how often they appear in a school year's

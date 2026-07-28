@@ -33,6 +33,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public Optional<Employee> getByPersonId(Long personId) {
+        return employeeRepository.findByPerson_PersonId(personId);
+    }
+
+    @Override
     public Employee create(Employee employee) {
         if (employee.getEmployeeId() == null || employee.getEmployeeId().isBlank()) {
             throw new IllegalArgumentException("employeeId is required.");

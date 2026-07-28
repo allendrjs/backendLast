@@ -14,6 +14,9 @@ public interface EmployeeService {
 
     Optional<Employee> getById(String employeeId);
 
+    /** Resolves the Employee record linked to a given personId, if any. */
+    Optional<Employee> getByPersonId(Long personId);
+
     Employee create(Employee employee);
 
     Employee update(String employeeId, Employee employee);

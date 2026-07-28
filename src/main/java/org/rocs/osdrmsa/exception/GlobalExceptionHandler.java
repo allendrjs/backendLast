@@ -28,6 +28,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "ACCOUNT_LOCKED", e.getMessage());
     }
 
+    @ExceptionHandler(TooManyAttemptsException.class)
+    public ResponseEntity<Object> handleTooManyAttempts(TooManyAttemptsException e) {
+        return build(HttpStatus.TOO_MANY_REQUESTS, "TOO_MANY_ATTEMPTS", e.getMessage());
+    }
+
     @ExceptionHandler(AccountInactiveException.class)
     public ResponseEntity<Object> handleAccountInactive(AccountInactiveException e) {
         return build(HttpStatus.FORBIDDEN, "ACCOUNT_INACTIVE", e.getMessage());

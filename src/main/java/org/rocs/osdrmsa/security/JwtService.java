@@ -30,7 +30,7 @@ public class JwtService {
     private static final String CLAIM_PERSON_ID = "personId";
 
     /**
-     * Must match application.properties' fallback for jwt.secret.
+     * Must match application.yaml's fallback for jwt.secret.
      */
     private static final String INSECURE_DEFAULT_SECRET = "dev-only-insecure-secret-change-me";
     private static final Set<String> SECRET_EXEMPT_PROFILES = Set.of("dev", "local", "test");
