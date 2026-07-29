@@ -10,7 +10,6 @@ import org.rocs.osdrmsa.domain.person.employee.Employee;
 import org.rocs.osdrmsa.domain.record.Record;
 import org.rocs.osdrmsa.domain.record.RecordStatus;
 import org.rocs.osdrmsa.repository.record.RecordRepository;
-import org.rocs.osdrmsa.service.audit.AuditLogService;
 
 import java.util.Date;
 import java.util.Optional;
@@ -24,9 +23,6 @@ class RecordServiceImplTest {
 
     @Mock
     private RecordRepository recordRepository;
-
-    @Mock
-    private AuditLogService auditLogService;
 
     @InjectMocks
     private RecordServiceImpl recordService;

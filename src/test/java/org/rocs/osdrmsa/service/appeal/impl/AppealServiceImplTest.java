@@ -11,7 +11,6 @@ import org.rocs.osdrmsa.domain.appeal.AppealStatus;
 import org.rocs.osdrmsa.domain.enrollment.Enrollment;
 import org.rocs.osdrmsa.domain.record.Record;
 import org.rocs.osdrmsa.repository.appeal.AppealRepository;
-import org.rocs.osdrmsa.service.audit.AuditLogService;
 
 import java.util.Optional;
 
@@ -25,9 +24,6 @@ class AppealServiceImplTest {
 
     @Mock
     private AppealRepository appealRepository;
-
-    @Mock
-    private AuditLogService auditLogService;
 
     @InjectMocks
     private AppealServiceImpl appealService;

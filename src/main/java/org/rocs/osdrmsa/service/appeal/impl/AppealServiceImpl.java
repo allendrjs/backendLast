@@ -5,7 +5,6 @@ import org.rocs.osdrmsa.domain.appeal.Appeal;
 import org.rocs.osdrmsa.domain.appeal.AppealStatus;
 import org.rocs.osdrmsa.repository.appeal.AppealRepository;
 import org.rocs.osdrmsa.service.appeal.AppealService;
-import org.rocs.osdrmsa.service.audit.AuditLogService;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -44,7 +43,6 @@ public class AppealServiceImpl implements AppealService {
     private static final String ENTITY_TYPE = "Appeal";
 
     private final AppealRepository appealRepository;
-    private final AuditLogService auditLogService;
 
     @Override
     public Appeal fileAppeal(Appeal appeal) {
@@ -63,7 +61,6 @@ public class AppealServiceImpl implements AppealService {
         appeal.setRemarks(null);
 
         Appeal saved = appealRepository.save(appeal);
-        auditLogService.log("APPEAL_FILED", ENTITY_TYPE, String.valueOf(saved.getAppealID()), null);
         return saved;
     }
 
@@ -90,7 +87,6 @@ public class AppealServiceImpl implements AppealService {
         }
 
         Appeal saved = appealRepository.save(appeal);
-        auditLogService.log("APPEAL_" + newStatus, ENTITY_TYPE, String.valueOf(saved.getAppealID()), remarks);
         return saved;
     }
 

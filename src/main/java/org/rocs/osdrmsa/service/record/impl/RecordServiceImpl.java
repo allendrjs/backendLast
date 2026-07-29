@@ -5,7 +5,6 @@ import org.rocs.osdrmsa.domain.department.Department;
 import org.rocs.osdrmsa.domain.record.RecordStatus;
 import org.rocs.osdrmsa.domain.record.Record;
 import org.rocs.osdrmsa.repository.record.RecordRepository;
-import org.rocs.osdrmsa.service.audit.AuditLogService;
 import org.rocs.osdrmsa.service.record.RecordService;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,6 @@ public class RecordServiceImpl implements RecordService {
     private static final String ENTITY_TYPE = "Record";
 
     private final RecordRepository recordRepository;
-    private final AuditLogService auditLogService;
 
     @Override
     public Record createStudentRecord(Record record) {
@@ -44,7 +42,6 @@ public class RecordServiceImpl implements RecordService {
         record.setStatus(RecordStatus.PENDING);
 
         Record saved = recordRepository.save(record);
-        auditLogService.log("RECORD_CREATED", ENTITY_TYPE, String.valueOf(saved.getRecordId()), null);
         return saved;
     }
 
@@ -69,7 +66,6 @@ public class RecordServiceImpl implements RecordService {
         }
 
         Record saved = recordRepository.save(record);
-        auditLogService.log("RECORD_UPDATED", ENTITY_TYPE, String.valueOf(saved.getRecordId()), null);
         return saved;
     }
 
@@ -87,7 +83,6 @@ public class RecordServiceImpl implements RecordService {
         record.setDateOfResolution(new java.util.Date());
 
         Record saved = recordRepository.save(record);
-        auditLogService.log("RECORD_RESOLVED", ENTITY_TYPE, String.valueOf(saved.getRecordId()), null);
         return saved;
     }
 

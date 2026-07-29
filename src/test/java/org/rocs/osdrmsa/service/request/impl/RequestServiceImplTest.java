@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.rocs.osdrmsa.domain.request.Request;
 import org.rocs.osdrmsa.domain.request.RequestStatus;
 import org.rocs.osdrmsa.repository.request.RequestRepository;
-import org.rocs.osdrmsa.service.audit.AuditLogService;
 
 import java.util.Optional;
 
@@ -23,9 +22,6 @@ class RequestServiceImplTest {
 
     @Mock
     private RequestRepository requestRepository;
-
-    @Mock
-    private AuditLogService auditLogService;
 
     @InjectMocks
     private RequestServiceImpl requestService;

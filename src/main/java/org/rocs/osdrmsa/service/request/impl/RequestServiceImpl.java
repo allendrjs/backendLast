@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.domain.request.Request;
 import org.rocs.osdrmsa.domain.request.RequestStatus;
 import org.rocs.osdrmsa.repository.request.RequestRepository;
-import org.rocs.osdrmsa.service.audit.AuditLogService;
 import org.rocs.osdrmsa.service.request.RequestService;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,6 @@ public class RequestServiceImpl implements RequestService {
     private static final String ENTITY_TYPE = "Request";
 
     private final RequestRepository requestRepository;
-    private final AuditLogService auditLogService;
 
     @Override
     public Request submitRequest(Request request) {
@@ -37,7 +35,6 @@ public class RequestServiceImpl implements RequestService {
         request.setRemarks(null);
 
         Request saved = requestRepository.save(request);
-        auditLogService.log("REQUEST_SUBMITTED", ENTITY_TYPE, String.valueOf(saved.getRequestID()), null);
         return saved;
     }
 
@@ -62,7 +59,6 @@ public class RequestServiceImpl implements RequestService {
         request.setDateProcessed(new Date());
 
         Request saved = requestRepository.save(request);
-        auditLogService.log("REQUEST_" + decision, ENTITY_TYPE, String.valueOf(saved.getRequestID()), remarks);
         return saved;
     }
 
