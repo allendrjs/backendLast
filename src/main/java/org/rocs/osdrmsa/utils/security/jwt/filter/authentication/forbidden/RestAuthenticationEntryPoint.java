@@ -1,7 +1,8 @@
-package org.rocs.osdrmsa.security;
+package org.rocs.osdrmsa.utils.security.jwt.filter.authentication.forbidden;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.rocs.osdrmsa.utils.security.SecurityErrorResponseWriter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

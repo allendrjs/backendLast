@@ -1,9 +1,9 @@
-package org.rocs.osdrmsa.config;
+package org.rocs.osdrmsa.utils.security.config;
 
 import lombok.RequiredArgsConstructor;
-import org.rocs.osdrmsa.security.JwtAuthenticationFilter;
-import org.rocs.osdrmsa.security.RestAccessDeniedHandler;
-import org.rocs.osdrmsa.security.RestAuthenticationEntryPoint;
+import org.rocs.osdrmsa.utils.security.jwt.filter.JwtAuthenticationFilter;
+import org.rocs.osdrmsa.utils.security.jwt.filter.authentication.access.denied.RestAccessDeniedHandler;
+import org.rocs.osdrmsa.utils.security.jwt.filter.authentication.forbidden.RestAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
