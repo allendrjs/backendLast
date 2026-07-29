@@ -1,4 +1,4 @@
-package org.rocs.osdrmsa.utils.security.jwt.filter;
+package org.rocs.osdrmsa.utils.security.jwt.filter.authorization;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.rocs.osdrmsa.utils.security.constant.SecurityConstant;
 import org.rocs.osdrmsa.utils.security.jwt.provider.token.JwtService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,9 +30,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String HEADER = "Authorization";
-    private static final String PREFIX = "Bearer ";
-
     private final JwtService jwtService;
 
     @Override
@@ -40,11 +38,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        String header = request.getHeader(HEADER);
+        String header = request.getHeader(SecurityConstant.AUTH_HEADER);
 
-        if (header != null && header.startsWith(PREFIX)) {
+        if (header != null && header.startsWith(SecurityConstant.TOKEN_PREFIX)) {
 
-            String token = header.substring(PREFIX.length());
+            String token = header.substring(SecurityConstant.TOKEN_PREFIX.length());
             Optional<DecodedJWT> decoded = jwtService.verify(token);
 
             if (decoded.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {

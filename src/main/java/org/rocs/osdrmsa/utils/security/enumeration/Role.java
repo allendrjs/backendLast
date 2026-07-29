@@ -1,4 +1,4 @@
-package org.rocs.osdrmsa.domain.login;
+package org.rocs.osdrmsa.utils.security.enumeration;
 
 public enum Role {
     ROLE_ADMIN,

@@ -1,7 +1,8 @@
-package org.rocs.osdrmsa.utils.security.config;
+package org.rocs.osdrmsa.utils.security.configuration;
 
 import lombok.RequiredArgsConstructor;
-import org.rocs.osdrmsa.utils.security.jwt.filter.JwtAuthenticationFilter;
+import org.rocs.osdrmsa.utils.security.constant.SecurityConstant;
+import org.rocs.osdrmsa.utils.security.jwt.filter.authorization.JwtAuthenticationFilter;
 import org.rocs.osdrmsa.utils.security.jwt.filter.authentication.access.denied.RestAccessDeniedHandler;
 import org.rocs.osdrmsa.utils.security.jwt.filter.authentication.forbidden.RestAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
@@ -40,10 +41,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/login/**", "/api/health").permitAll()
-                        .requestMatchers(
-                                "/swagger-ui.html", "/swagger-ui/**",
-                                "/v3/api-docs", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(SecurityConstant.PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(restAuthenticationEntryPoint)

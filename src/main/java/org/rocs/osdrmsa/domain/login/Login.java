@@ -8,6 +8,7 @@ import org.rocs.osdrmsa.domain.person.Person;
 import org.rocs.osdrmsa.domain.person.employee.Employee;
 
 import java.util.Date;
+import org.rocs.osdrmsa.utils.security.enumeration.Role;
 
 @Entity
 @Data
