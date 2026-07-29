@@ -1,4 +1,4 @@
-package org.rocs.osdrmsa.security;
+package org.rocs.osdrmsa.utils.security.jwt.filter.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,14 +15,14 @@ import java.util.Map;
  * run inside the filter chain - before DispatcherServlet - where
  * @RestControllerAdvice can't reach them.
  */
-final class SecurityErrorResponseWriter {
+public final class SecurityErrorResponseWriter {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private SecurityErrorResponseWriter() {
     }
 
-    static void write(HttpServletResponse response, HttpStatus status, String code, String message)
+    public static void write(HttpServletResponse response, HttpStatus status, String code, String message)
             throws IOException {
 
         response.setStatus(status.value());

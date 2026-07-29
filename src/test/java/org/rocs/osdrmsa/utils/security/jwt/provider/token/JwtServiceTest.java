@@ -1,4 +1,4 @@
-package org.rocs.osdrmsa.security;
+package org.rocs.osdrmsa.utils.security.jwt.provider.token;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.jupiter.api.Test;

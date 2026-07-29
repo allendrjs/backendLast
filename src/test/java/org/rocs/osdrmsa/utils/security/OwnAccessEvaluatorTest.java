@@ -1,4 +1,4 @@
-package org.rocs.osdrmsa.security;
+package org.rocs.osdrmsa.utils.security;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

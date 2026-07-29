@@ -1,4 +1,4 @@
-package org.rocs.osdrmsa.security;
+package org.rocs.osdrmsa.utils.security.jwt.filter.authentication.forbidden;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;

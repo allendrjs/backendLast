@@ -1,4 +1,4 @@
-package org.rocs.osdrmsa.security;
+package org.rocs.osdrmsa.utils.security;
 
 import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.domain.login.Login;

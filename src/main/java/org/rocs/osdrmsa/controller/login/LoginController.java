@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.controller.login.dto.LoginRequest;
 import org.rocs.osdrmsa.controller.login.dto.LoginResponse;
 import org.rocs.osdrmsa.domain.login.Login;
-import org.rocs.osdrmsa.security.JwtService;
+import org.rocs.osdrmsa.utils.security.jwt.provider.token.JwtService;
 import org.rocs.osdrmsa.service.login.LoginService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
