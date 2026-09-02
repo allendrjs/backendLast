@@ -34,7 +34,6 @@ public class OffenseServiceImpl implements OffenseService {
 
     @Override
     public Offense create(Offense offense) {
-        offense.setOffenseId(0L);
         return offenseRepository.save(offense);
     }
 
@@ -56,7 +55,8 @@ public class OffenseServiceImpl implements OffenseService {
             offenseRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException(
-                    "Cannot delete offense " + id + " because it is referenced by existing records.");
+                    "Cannot delete offense " + id +
+                            " because it is referenced by existing records.");
         }
     }
 }
