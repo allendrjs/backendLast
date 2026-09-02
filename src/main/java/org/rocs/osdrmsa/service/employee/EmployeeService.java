@@ -14,6 +14,8 @@ public interface EmployeeService {
 
     Optional<Employee> getById(String employeeId);
 
+    Employee getBySelf(String username);
+
     Employee create(Employee employee);
 
     Employee update(String employeeId, Employee employee);
