@@ -13,7 +13,7 @@ public class Student {
     @Column(name = "studentID", nullable = false, updatable = false)
     private String studentId;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "personID")
     private Person person;
 
