@@ -24,47 +24,92 @@ public class RequestController {
 
     @PostMapping
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<RequestResponse> submit(@RequestBody RequestSubmitRequest request) {
-        Request submitted = requestService.submitRequest(RequestDtoMapper.toEntity(request));
+    public ResponseEntity<RequestResponse> submit(
+            @RequestBody RequestSubmitRequest request,
+            Authentication authentication) {
+
+        Request submitted = requestService.submitRequest(
+                RequestDtoMapper.toEntity(request),
+                authentication.getName()
+        );
+
         return ResponseEntity.ok(RequestDtoMapper.toResponse(submitted));
     }
 
     @PatchMapping("/{requestId}/decision")
     @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
     public ResponseEntity<RequestResponse> decide(
-            @PathVariable Long requestId, @RequestBody RequestDecisionRequest decision) {
-        Request processed = requestService.processRequest(requestId, decision.decision(), decision.remarks());
+            @PathVariable Long requestId,
+            @RequestBody RequestDecisionRequest decision) {
+
+        Request processed = requestService.processRequest(
+                requestId,
+                decision.decision(),
+                decision.remarks()
+        );
+
         return ResponseEntity.ok(RequestDtoMapper.toResponse(processed));
     }
 
     @GetMapping("/employee/{employeeId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
-    public ResponseEntity<List<RequestResponse>> getByEmployee(@PathVariable String employeeId) {
-        return ResponseEntity.ok(requestService.getByEmployeeId(employeeId).stream().map(RequestDtoMapper::toResponse).toList()
+    public ResponseEntity<List<RequestResponse>> getByEmployee(
+            @PathVariable String employeeId) {
+
+        return ResponseEntity.ok(
+                requestService.getByEmployeeId(employeeId)
+                        .stream()
+                        .map(RequestDtoMapper::toResponse)
+                        .toList()
         );
     }
 
     @GetMapping("/my-department")
-    @PreAuthorize("hasRole('DEPT_HEAD')")
-    public ResponseEntity<List<RequestResponse>> getMyDepartment(Authentication authentication) {
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<List<RequestResponse>> getMyDepartment(
+            Authentication authentication) {
+
         String username = authentication.getName();
-        return ResponseEntity.ok(requestService.getMyDepartmentRequests(username).stream().map(RequestDtoMapper::toResponse).toList());
+
+        return ResponseEntity.ok(
+                requestService.getMyDepartmentRequests(username)
+                        .stream()
+                        .map(RequestDtoMapper::toResponse)
+                        .toList()
+        );
     }
 
     @GetMapping("/my-department/name")
-    @PreAuthorize("hasRole('DEPT_HEAD')")
-    public ResponseEntity<String> getMyDepartmentName(Authentication authentication) {
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<String> getMyDepartmentName(
+            Authentication authentication) {
+
         String username = authentication.getName();
-        return ResponseEntity.ok(requestService.getMyDepartmentName(username)
+
+        return ResponseEntity.ok(
+                requestService.getMyDepartmentName(username)
         );
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
-    public ResponseEntity<List<RequestResponse>> getAll(@RequestParam(required = false) RequestStatus status) {
+    public ResponseEntity<List<RequestResponse>> getAll(
+            @RequestParam(required = false) RequestStatus status) {
+
         if (status != null) {
-            return ResponseEntity.ok(requestService.getByStatus(status).stream().map(RequestDtoMapper::toResponse).toList());
+            return ResponseEntity.ok(
+                    requestService.getByStatus(status)
+                            .stream()
+                            .map(RequestDtoMapper::toResponse)
+                            .toList()
+            );
         }
-        return ResponseEntity.ok(requestService.getAll().stream().map(RequestDtoMapper::toResponse).toList());
+
+        return ResponseEntity.ok(
+                requestService.getAll()
+                        .stream()
+                        .map(RequestDtoMapper::toResponse)
+                        .toList()
+        );
     }
 }

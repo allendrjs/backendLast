@@ -11,6 +11,8 @@ public record RequestResponse(
         String message,
         String type,
         RequestStatus status,
+        LocalDate dateFiled,
         LocalDate dateProcessed,
-        String remarks) {
+        String remarks,
+        String aiResponse) {
 }

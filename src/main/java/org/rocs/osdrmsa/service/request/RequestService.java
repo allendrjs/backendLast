@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface RequestService {
 
-    Request submitRequest(Request request);
+    Request submitRequest(Request request, String username);
 
     Request processRequest(Long requestId, RequestStatus decision, String remarks);
 

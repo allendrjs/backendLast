@@ -3,6 +3,7 @@ package org.rocs.osdrmsa.domain.request;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -30,10 +31,16 @@ public class Request {
     @Column(name = "status", nullable = false)
     private RequestStatus status;
 
+    @Column(name = "dateFiled", nullable = false)
+    private LocalDate dateFiled;
+
     @Column(name = "dateProcessed")
     private Date dateProcessed;
 
+    @Lob
+    @Column(name = "aiResponse")
+    private String aiResponse;
+
     @Column(name = "remarks")
     private String remarks;
-
 }

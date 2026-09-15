@@ -7,15 +7,15 @@ import org.rocs.osdrmsa.utils.converter.DateConversion;
 
 public final class RequestDtoMapper {
 
-    private RequestDtoMapper() {
-    }
+    private RequestDtoMapper() {}
 
     public static Request toEntity(RequestSubmitRequest request) {
         Request entity = new Request();
-        entity.setEmployeeID(request.employeeId());
+
         entity.setDetails(request.details());
         entity.setMessage(request.message());
         entity.setType(request.type());
+
         return entity;
     }
 
@@ -23,6 +23,7 @@ public final class RequestDtoMapper {
         if (request == null) {
             return null;
         }
+
         return new RequestResponse(
                 request.getRequestID(),
                 request.getEmployeeID(),
@@ -30,7 +31,10 @@ public final class RequestDtoMapper {
                 request.getMessage(),
                 request.getType(),
                 request.getStatus(),
+                request.getDateFiled(),
                 DateConversion.toLocalDate(request.getDateProcessed()),
-                request.getRemarks());
+                request.getRemarks(),
+                request.getAiResponse()
+        );
     }
 }
