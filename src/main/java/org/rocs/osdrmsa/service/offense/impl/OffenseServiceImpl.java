@@ -38,6 +38,9 @@ public class OffenseServiceImpl implements OffenseService {
     }
 
     @Override
+    public List<Offense> getActive() { return offenseRepository.findByIsActiveTrue();}
+
+    @Override
     public Offense update(Long id, Offense offense) {
         Offense existing = offenseRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Offense not found: " + id));
@@ -49,7 +52,6 @@ public class OffenseServiceImpl implements OffenseService {
         return offenseRepository.save(existing);
     }
 
-    @Override
     public void delete(Long id) {
         try {
             offenseRepository.deleteById(id);
@@ -58,5 +60,19 @@ public class OffenseServiceImpl implements OffenseService {
                     "Cannot delete offense " + id +
                             " because it is referenced by existing records.");
         }
+    }
+
+    @Override
+    public Offense setActive(Long id, boolean active) {
+        Offense existing = offenseRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Offense not found: " + id));
+
+        existing.setIsActive(active);
+
+        return offenseRepository.save(existing);
+    }
+
+    public Optional<Offense> getActiveById(Long id) {
+        return offenseRepository.findByOffenseIdAndIsActiveTrue(id);
     }
 }

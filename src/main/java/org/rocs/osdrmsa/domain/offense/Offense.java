@@ -21,5 +21,7 @@ public class Offense {
 
     @Column(name = "DESCRIPTION")
     private String description;
-}
 
+    @Column(name = "ISACTIVE", nullable = false)
+    private Boolean isActive = true;
+}

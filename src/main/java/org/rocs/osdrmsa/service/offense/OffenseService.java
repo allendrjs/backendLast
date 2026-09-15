@@ -11,11 +11,17 @@ public interface OffenseService {
 
     List<Offense> getByType(String type);
 
+    List<Offense> getActive();
+
     Optional<Offense> getById(Long id);
+
+    Optional<Offense> getActiveById(Long id);
 
     Offense create(Offense offense);
 
     Offense update(Long id, Offense offense);
 
     void delete(Long id);
+
+    Offense setActive(Long id, boolean active);
 }

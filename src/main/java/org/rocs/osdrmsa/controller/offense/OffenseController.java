@@ -17,19 +17,35 @@ public class OffenseController {
     private final OffenseService offenseService;
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Offense>> getAll(
             @RequestParam(required = false) String type) {
+
         if (type != null && !type.isBlank()) {
             return ResponseEntity.ok(offenseService.getByType(type));
         }
+
         return ResponseEntity.ok(offenseService.getAll());
     }
 
+    @GetMapping("/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
+    public ResponseEntity<List<Offense>> getActive()
+    { return ResponseEntity.ok(offenseService.getActive());
+    }
+
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Offense> getById(@PathVariable Long id) {
         return offenseService.getById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/active/{id}")
+    @PreAuthorize("hasRole('PREFECT')")
+    public ResponseEntity<Offense> getActiveById(@PathVariable Long id) {
+        return offenseService.getActiveById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -51,5 +67,14 @@ public class OffenseController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         offenseService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/active")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Offense> setActive(
+            @PathVariable Long id,
+            @RequestParam boolean active) {
+
+        return ResponseEntity.ok(offenseService.setActive(id, active));
     }
 }
