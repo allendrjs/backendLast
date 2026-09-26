@@ -166,6 +166,15 @@ CREATE TABLE suggestion (
    suggestionText CLOB,
    primary key (suggestionID)
 );
+CREATE TABLE handbook_chunk (
+   chunk_id number(20,0) generated as identity
+       constraint HANDBOOK_CHUNK_NOT_NULL not null,
+   department VARCHAR2(20) not null,
+   section_title VARCHAR2(200),
+   content CLOB,
+   embedding VECTOR(768, FLOAT32),
+   primary key (chunk_id)
+);
 CREATE TABLE generatedSuggestion (
    generatedSuggestionID number(20,0) generated as identity
        constraint GENSUGGESTION_NOT_NULL not null,
@@ -199,6 +208,7 @@ ALTER TABLE record ADD CONSTRAINT CHK_RECORD_STATUS CHECK (status IN ('PENDING',
 ALTER TABLE employee ADD CONSTRAINT CHK_EMPLOYEE_DEPT CHECK (department IN ('JHS', 'SHS', 'COLLEGE'));
 ALTER TABLE student ADD CONSTRAINT CHK_STUDENT_DEPT CHECK (department IN ('JHS', 'SHS', 'COLLEGE'));
 ALTER TABLE enrollment ADD CONSTRAINT CHK_ENROLL_DEPT CHECK (department IN ('JHS', 'SHS', 'COLLEGE'));
+ALTER TABLE handbook_chunk ADD CONSTRAINT CHK_HANDBOOK_DEPT CHECK (department IN ('JHS', 'SHS', 'COLLEGE'));
 ALTER TABLE guardian ADD CONSTRAINT CHK_GUARDIAN_RELATIONSHIP CHECK (relationship IN ('FATHER', 'MOTHER', 'GUARDIAN'));
 -- AUDIT_LOG ENTITY (added for BE-44 audit logging; not part of the
 -- original DDL script, since it was built before the schema-alignment

@@ -34,6 +34,51 @@ public class OllamaClient {
     @Value("${ollama.request-timeout-seconds:60}")
     private long requestTimeoutSeconds;
 
+    @Value("${ollama.embedding-model:nomic-embed-text}")
+    private String embeddingModel;
+
+    public float[] embed(String text) {
+        try {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("model", embeddingModel);
+            body.put("input", text);
+
+            String json = objectMapper.writeValueAsString(body);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/api/embed"))
+                    .header("Content-Type", "application/json")
+                    .timeout(Duration.ofSeconds(requestTimeoutSeconds))
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException(
+                        "Ollama returned HTTP " + response.statusCode() + ": " + response.body());
+            }
+
+            JsonNode root = objectMapper.readTree(response.body());
+            JsonNode vectorNode = root.path("embeddings").path(0);
+            if (!vectorNode.isArray() || vectorNode.isEmpty()) {
+                throw new IllegalStateException("Ollama returned an empty embedding.");
+            }
+
+            float[] vector = new float[vectorNode.size()];
+            for (int i = 0; i < vectorNode.size(); i++) {
+                vector[i] = (float) vectorNode.get(i).asDouble();
+            }
+            return vector;
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Couldn't reach the local AI service. Make sure Ollama is running on " + baseUrl + ".", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("The AI request was interrupted. Please try again.", e);
+        }
+    }
+
     public String chat(List<ChatMessageDto> messages) {
         try {
             Map<String, Object> body = new LinkedHashMap<>();
