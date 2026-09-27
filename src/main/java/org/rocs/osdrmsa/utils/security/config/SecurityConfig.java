@@ -36,12 +36,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Patterns (not plain setAllowedOrigins) so a wildcard subdomain like
-        // Vercel's per-preview-deploy URLs (my-app-git-branch.vercel.app)
-        // still works together with allowCredentials(true) -- a literal "*"
-        // origin is rejected by browsers once credentials are involved.
-        // Add your Vercel project's real production domain here too once
-        // you know it, e.g. "https://rc-osd-web.vercel.app".
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",

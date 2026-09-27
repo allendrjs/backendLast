@@ -30,8 +30,16 @@ public final class CommonDtoMapper {
         if (employee == null) {
             return null;
         }
+
+        Person person = employee.getPerson();
+
         return new EmployeeSummary(
-                employee.getEmployeeId(), fullName(employee.getPerson()), employee.getEmployeeRole());
+                employee.getEmployeeId(),
+                fullName(person),
+                employee.getEmployeeRole(),
+                employee.getDepartment() != null ? employee.getDepartment().name() : null,
+                employee.getPerson() != null ? employee.getPerson().getDateOfBirth() : null
+        );
     }
 
     public static EnrollmentSummary toEnrollmentSummary(Enrollment enrollment) {

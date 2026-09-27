@@ -3,6 +3,11 @@ package org.rocs.osdrmsa.domain.person;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDate;
+
 @Entity
 @Data
 @Table(name = "PERSON")
@@ -21,4 +26,7 @@ public class Person {
 
     @Column(name = "MIDDLENAME", length = 30)
     private String middleName;
+
+    @Column(name = "DATEOFBIRTH")
+    private LocalDate dateOfBirth;
 }

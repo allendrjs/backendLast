@@ -1,4 +1,6 @@
 package org.rocs.osdrmsa.dto.summary;
 
-public record EmployeeSummary(String employeeId, String fullName, String employeeRole) {
+import java.time.LocalDate;
+
+public record EmployeeSummary(String employeeId, String fullName, String employeeRole, String department, LocalDate birthDate) {
 }

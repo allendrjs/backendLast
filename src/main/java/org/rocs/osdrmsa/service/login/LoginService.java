@@ -9,4 +9,6 @@ public interface LoginService {
     Login authenticate(String username, String password);
 
     Optional<Login> getByUsername(String username);
+
+    void changePassword(String username, String currentPassword, String newPassword);
 }
