@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -59,6 +60,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleAccessDenied(AccessDeniedException e) {
         return build(HttpStatus.FORBIDDEN, "ACCESS_DENIED",
                 "You do not have permission to perform this action.");
+    }
+
+    /**
+     * Thrown when an uploaded file (e.g. a scanned appeal letter PDF) exceeds
+     * spring.servlet.multipart.max-file-size/max-request-size. Without this
+     * handler it fell through to the generic 500 below, which looked to the
+     * student like the upload "just didn't work" for that file type.
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Object> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        return build(HttpStatus.PAYLOAD_TOO_LARGE, "FILE_TOO_LARGE",
+                "That file is too large to upload. Please attach a smaller file.");
     }
 
     @ExceptionHandler(Exception.class)
