@@ -24,3 +24,4 @@ public interface StudentRepository extends JpaRepository<Student, String> {
     Optional<Student> findByStudentIdAndIsActiveTrue(String studentId);
 
 }
+

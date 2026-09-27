@@ -30,3 +30,4 @@ public class Person {
     @Column(name = "DATEOFBIRTH")
     private LocalDate dateOfBirth;
 }
+

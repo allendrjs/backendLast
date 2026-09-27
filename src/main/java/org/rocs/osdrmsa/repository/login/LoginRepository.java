@@ -19,3 +19,4 @@ public interface LoginRepository extends JpaRepository<Login, Long> {
             Role role
     );
 }
+

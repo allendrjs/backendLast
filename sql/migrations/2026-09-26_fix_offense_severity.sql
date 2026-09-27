@@ -22,9 +22,10 @@ WHERE offense = 'Technology Violation';
 
 INSERT INTO offense (offense, type, description)
 VALUES (
-    'Technology Violation (Unauthorized Use)',
-    'Major Offense',
-    'Student uses an electronic device during class, programs, or Mass, or accesses/alters school computer data without authorization (Student Handbook Sec. 2.1.5 / 2.2.11, Major Offenses)'
-);
+           'Technology Violation (Unauthorized Use)',
+           'Major Offense',
+           'Student uses an electronic device during class, programs, or Mass, or accesses/alters school computer data without authorization (Student Handbook Sec. 2.1.5 / 2.2.11, Major Offenses)'
+       );
 
 COMMIT;
+
