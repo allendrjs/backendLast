@@ -5,16 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-/**
- * Central place for mapping known business exceptions to consistent JSON
- * error responses instead of leaking stack traces or generic 500s.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -48,17 +45,16 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, "CONFLICT", e.getMessage());
     }
 
-    /**
-     * Thrown by @PreAuthorize denials. Method-security AOP intercepts the
-     * controller call inside DispatcherServlet, so this exception reaches
-     * @RestControllerAdvice rather than Spring Security's own
-     * ExceptionTranslationFilter - without this handler it would fall
-     * through to the generic 500 below instead of a 403.
-     */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDenied(AccessDeniedException e) {
         return build(HttpStatus.FORBIDDEN, "ACCESS_DENIED",
                 "You do not have permission to perform this action.");
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Object> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        return build(HttpStatus.PAYLOAD_TOO_LARGE, "FILE_TOO_LARGE",
+                "That file is too large to upload. Please attach a smaller file.");
     }
 
     @ExceptionHandler(Exception.class)

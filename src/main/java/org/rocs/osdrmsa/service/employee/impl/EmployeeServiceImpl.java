@@ -78,3 +78,4 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new IllegalStateException("No employee profile found for the current session."));
     }
 }
+

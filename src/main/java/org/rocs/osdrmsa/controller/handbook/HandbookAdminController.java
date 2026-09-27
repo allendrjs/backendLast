@@ -24,3 +24,4 @@ public class HandbookAdminController {
         return ResponseEntity.ok(result);
     }
 }
+

@@ -22,6 +22,10 @@ spring:
 server:
   port: 8080
 
+spring.servlet.multipart:
+  max-file-size: ${UPLOAD_MAX_FILE_SIZE:10MB}
+  max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:15MB}
+
 jwt:
   secret: ${JWT_SECRET:devonlyinsecuresecretchangeme}
   expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
@@ -29,4 +33,10 @@ jwt:
 ollama:
   base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
   model: ${OLLAMA_MODEL:llama3.2}
+  embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
   request-timeout-seconds: ${OLLAMA_TIMEOUT_SECONDS:60}
+
+handbook:
+  embedding-dimensions: ${HANDBOOK_EMBEDDING_DIMENSIONS:768}
+  top-k: ${HANDBOOK_TOP_K:5}
+
