@@ -62,12 +62,6 @@ public class GlobalExceptionHandler {
                 "You do not have permission to perform this action.");
     }
 
-    /**
-     * Thrown when an uploaded file (e.g. a scanned appeal letter PDF) exceeds
-     * spring.servlet.multipart.max-file-size/max-request-size. Without this
-     * handler it fell through to the generic 500 below, which looked to the
-     * student like the upload "just didn't work" for that file type.
-     */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Object> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
         return build(HttpStatus.PAYLOAD_TOO_LARGE, "FILE_TOO_LARGE",
