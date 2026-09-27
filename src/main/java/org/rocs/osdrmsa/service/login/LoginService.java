@@ -12,3 +12,4 @@ public interface LoginService {
 
     void changePassword(String username, String currentPassword, String newPassword);
 }
+

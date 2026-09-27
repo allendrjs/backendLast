@@ -37,49 +37,49 @@ The server handles user authentication, student and enrollment data, disciplinar
 Follow these steps to run the server locally:
 
 1. Install Required Software
-   - IntelliJ IDEA
-   - JDK 21
-   - Oracle Database and Oracle SQL Developer
-   - Git
-   - Ollama (for the AI Chat Assistant)
-   - Tesseract OCR (for the AI Support Module)
+    - IntelliJ IDEA
+    - JDK 21
+    - Oracle Database and Oracle SQL Developer
+    - Git
+    - Ollama (for the AI Chat Assistant)
+    - Tesseract OCR (for the AI Support Module)
 2. Clone the Repository
    ```bash
    git clone https://github.com/bsit5012025/rc-osd-backend.git
    ```
 3. Open the Project in IntelliJ IDEA
-   - Launch IntelliJ IDEA.
-   - Select Open and navigate to the project folder.
-   - Wait for Gradle to finish loading all project dependencies.
+    - Launch IntelliJ IDEA.
+    - Select Open and navigate to the project folder.
+    - Wait for Gradle to finish loading all project dependencies.
 4. Set Up the Oracle Database
-   - Open Oracle SQL Developer.
-   - Create a new database connection.
-   - Execute the provided `.sql` scripts to create the necessary tables and schema.
+    - Open Oracle SQL Developer.
+    - Create a new database connection.
+    - Execute the provided `.sql` scripts to create the necessary tables and schema.
 5. Configure the Application
-   - Open `src/main/resources/application.yaml`, or set the matching environment variables:
-     - Database URL (`DB_URL`)
-     - Username (`DB_USERNAME`)
-     - Password (`DB_PASSWORD`)
-     - JWT Secret (`JWT_SECRET`), which should be changed from the default before deployment
-     - Ollama URL and model (`OLLAMA_BASE_URL`, `OLLAMA_MODEL`)
-     - Tesseract data folder (`tesseract.tessdata-path`)
+    - Open `src/main/resources/application.yaml`, or set the matching environment variables:
+        - Database URL (`DB_URL`)
+        - Username (`DB_USERNAME`)
+        - Password (`DB_PASSWORD`)
+        - JWT Secret (`JWT_SECRET`), which should be changed from the default before deployment
+        - Ollama URL and model (`OLLAMA_BASE_URL`, `OLLAMA_MODEL`)
+        - Tesseract data folder (`tesseract.tessdata-path`)
 6. Set Up the AI Services
-   - Install Ollama and download the model:
-     ```bash
-     ollama pull llama3.2
-     ```
-   - Make sure Ollama is running on `http://localhost:11434`.
-   - Install Tesseract OCR and note the location of its `tessdata` folder.
+    - Install Ollama and download the model:
+      ```bash
+      ollama pull llama3.2
+      ```
+    - Make sure Ollama is running on `http://localhost:11434`.
+    - Install Tesseract OCR and note the location of its `tessdata` folder.
 7. Build and Run the Project
-   - Build the project:
-     ```bash
-     gradlew build
-     ```
-   - Run the main class `OsdrmsaApplApplication`, or use:
-     ```bash
-     gradlew bootRun
-     ```
-   - The server starts at `http://localhost:8080`.
+    - Build the project:
+      ```bash
+      gradlew build
+      ```
+    - Run the main class `OsdrmsaApplApplication`, or use:
+      ```bash
+      gradlew bootRun
+      ```
+    - The server starts at `http://localhost:8080`.
 
 ## System Requirements
 
