@@ -34,7 +34,8 @@ public class AppealController {
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Appeal> submitAppeal(@RequestBody AppealFileRequest request) {
-        Appeal appeal = appealService.submitAppeal(request.recordId(), request.enrollmentId(), request.message());
+        Appeal appeal = appealService.submitAppeal(
+                request.recordId(), request.enrollmentId(), request.message(), request.documentId());
         return ResponseEntity.ok(appeal);
     }
 
