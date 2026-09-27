@@ -24,4 +24,5 @@ public class Employee {
 
     @Column(name = "EMPLOYEEROLE")
     private String employeeRole;
+
 }
