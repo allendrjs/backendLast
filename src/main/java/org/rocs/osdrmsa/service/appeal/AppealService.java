@@ -10,7 +10,7 @@ public interface AppealService {
 
     List<Appeal> getAppealsByStudentId(String studentId);
 
-    Appeal submitAppeal(Long recordId, Long enrollmentId, String message);
+    Appeal submitAppeal(Long recordId, Long enrollmentId, String message, Long documentId);
 
     void approveAppeal(Long appealId, String remarks);
 

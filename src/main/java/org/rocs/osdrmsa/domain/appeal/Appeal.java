@@ -2,6 +2,7 @@ package org.rocs.osdrmsa.domain.appeal;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.rocs.osdrmsa.domain.document.Document;
 import org.rocs.osdrmsa.domain.enrollment.Enrollment;
 import org.rocs.osdrmsa.domain.record.Record;
 
@@ -25,6 +26,10 @@ public class Appeal {
     @JoinColumn(name = "ENROLLMENTID")
     private Enrollment enrollment;
 
+    @ManyToOne
+    @JoinColumn(name = "DOCUMENTID")
+    private Document document;
+
     @Column(name = "MESSAGE")
     private String message;
 
@@ -39,4 +44,11 @@ public class Appeal {
 
     @Column(name = "REMARKS")
     private String remarks;
+
+    @Column(name = "AIRECOMMENDATION")
+    private String aiRecommendation;
+
+    @Lob
+    @Column(name = "AIREASONING")
+    private String aiReasoning;
 }
