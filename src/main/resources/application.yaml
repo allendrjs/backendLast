@@ -39,4 +39,3 @@ ollama:
 handbook:
   embedding-dimensions: ${HANDBOOK_EMBEDDING_DIMENSIONS:768}
   top-k: ${HANDBOOK_TOP_K:5}
-

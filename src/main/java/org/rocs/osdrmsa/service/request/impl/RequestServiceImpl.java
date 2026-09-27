@@ -2,6 +2,7 @@ package org.rocs.osdrmsa.service.request.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.dto.summary.ChatMessageDto;
+import org.rocs.osdrmsa.service.ai.AiCaseAnalysisService;
 import org.rocs.osdrmsa.utils.ai.OllamaClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ public class RequestServiceImpl implements RequestService {
     private final EmployeeRepository employeeRepository;
     private final RecordRepository recordRepository;
     private final OllamaClient ollamaClient;
+    private final AiCaseAnalysisService aiCaseAnalysisService;
     private final EnrollmentRepository enrollmentRepository;
     private final StudentRepository studentRepository;
 
@@ -95,6 +97,11 @@ public class RequestServiceImpl implements RequestService {
         request.setAiResponse(
                 generateAiResponse(request, matchingRecords)
         );
+
+        AiCaseAnalysisService.Result aiRecommendation =
+                generateAiRecommendation(request, matchingRecords, department);
+        request.setAiRecommendation(aiRecommendation.recommendation());
+        request.setAiReasoning(aiRecommendation.reasoning());
 
         return requestRepository.save(request);
     }
@@ -188,66 +195,70 @@ public class RequestServiceImpl implements RequestService {
         return normalized;
     }
 
+    private String buildRequestContext(Request request, List<Record> records) {
+
+        StringBuilder context = new StringBuilder();
+
+        context.append("REQUEST TYPE: ")
+                .append(request.getType())
+                .append("\n");
+
+        context.append("REQUEST DETAILS: ")
+                .append(request.getDetails())
+                .append("\n");
+
+        context.append("REQUEST REASON: ")
+                .append(request.getMessage())
+                .append("\n\n");
+
+        context.append(
+                        "MATCHING DISCIPLINARY RECORDS ON FILE ("
+                ).append(records.size())
+                .append("):\n");
+
+        if (records.isEmpty()) {
+            context.append(
+                    "No disciplinary records are currently on file "
+                            + "for this valid requested scope.\n"
+            );
+        } else {
+            records.stream()
+                    .limit(20)
+                    .forEach(record -> {
+
+                        String studentId =
+                                record.getEnrollment() != null
+                                        && record.getEnrollment().getStudent() != null
+                                        ? record.getEnrollment()
+                                        .getStudent()
+                                        .getStudentId()
+                                        : "Unknown";
+
+                        String offense =
+                                record.getOffense() != null
+                                        ? record.getOffense().getOffense()
+                                        : "Unknown";
+
+                        context.append("- Student: ")
+                                .append(studentId)
+                                .append(", offense: ")
+                                .append(offense)
+                                .append(", violation date: ")
+                                .append(record.getDateOfViolation())
+                                .append(", status: ")
+                                .append(record.getStatus())
+                                .append("\n");
+                    });
+        }
+
+        return context.toString();
+    }
+
     private String generateAiResponse(
             Request request,
             List<Record> records) {
 
         try {
-
-            StringBuilder context = new StringBuilder();
-
-            context.append("REQUEST TYPE: ")
-                    .append(request.getType())
-                    .append("\n");
-
-            context.append("REQUEST DETAILS: ")
-                    .append(request.getDetails())
-                    .append("\n");
-
-            context.append("REQUEST REASON: ")
-                    .append(request.getMessage())
-                    .append("\n\n");
-
-            context.append(
-                            "MATCHING DISCIPLINARY RECORDS ON FILE ("
-                    ).append(records.size())
-                    .append("):\n");
-
-            if (records.isEmpty()) {
-                context.append(
-                        "No disciplinary records are currently on file "
-                                + "for this valid requested scope.\n"
-                );
-            } else {
-                records.stream()
-                        .limit(20)
-                        .forEach(record -> {
-
-                            String studentId =
-                                    record.getEnrollment() != null
-                                            && record.getEnrollment().getStudent() != null
-                                            ? record.getEnrollment()
-                                            .getStudent()
-                                            .getStudentId()
-                                            : "Unknown";
-
-                            String offense =
-                                    record.getOffense() != null
-                                            ? record.getOffense().getOffense()
-                                            : "Unknown";
-
-                            context.append("- Student: ")
-                                    .append(studentId)
-                                    .append(", offense: ")
-                                    .append(offense)
-                                    .append(", violation date: ")
-                                    .append(record.getDateOfViolation())
-                                    .append(", status: ")
-                                    .append(record.getStatus())
-                                    .append("\n");
-                        });
-            }
-
             return ollamaClient.chat(
                     List.of(
                             new ChatMessageDto(
@@ -256,7 +267,7 @@ public class RequestServiceImpl implements RequestService {
                             ),
                             new ChatMessageDto(
                                     "user",
-                                    context.toString()
+                                    buildRequestContext(request, records)
                             )
                     )
             );
@@ -269,6 +280,24 @@ public class RequestServiceImpl implements RequestService {
             );
 
             return null;
+        }
+    }
+
+    private AiCaseAnalysisService.Result generateAiRecommendation(
+            Request request,
+            List<Record> records,
+            Department department) {
+
+        try {
+            String context = buildRequestContext(request, records);
+            String departmentName = department != null ? department.name() : null;
+            return aiCaseAnalysisService.analyze("Department Head Request", departmentName, context);
+        } catch (Exception e) {
+            log.warn(
+                    "AI Support Module request recommendation generation failed: {}",
+                    e.getMessage()
+            );
+            return new AiCaseAnalysisService.Result("UNCERTAIN", "AI analysis is temporarily unavailable.");
         }
     }
 

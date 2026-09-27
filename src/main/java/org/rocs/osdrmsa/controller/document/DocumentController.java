@@ -29,7 +29,7 @@ public class DocumentController {
             @RequestParam("file") MultipartFile file
     ) throws IOException {
         DocumentUploadResponse response = documentService.processAppealUpload(
-                authentication.getName(), file.getBytes(), file.getOriginalFilename());
+                authentication.getName(), file.getBytes(), file.getOriginalFilename(), file.getContentType());
         return ResponseEntity.ok(response);
     }
 }

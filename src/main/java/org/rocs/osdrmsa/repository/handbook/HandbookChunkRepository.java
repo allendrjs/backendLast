@@ -8,6 +8,14 @@ import org.springframework.stereotype.Repository;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Stores and retrieves Student Handbook text chunks and their embeddings, using Oracle
+ * Database 23ai's native VECTOR type and VECTOR_DISTANCE similarity search. Deliberately
+ * plain JDBC rather than JPA: the VECTOR column is written/read by binding an
+ * oracle.sql.VECTOR object as a normal JDBC parameter (ojdbc11 supports this natively),
+ * rather than inlining the embedding's floats as SQL text -- a real embedding (e.g. 768
+ * dimensions) would otherwise exceed Oracle's ~4000-byte string literal limit.
+ */
 @Repository
 public class HandbookChunkRepository {
 
@@ -60,6 +68,11 @@ public class HandbookChunkRepository {
         return count == null ? 0 : count;
     }
 
+    /**
+     * All chunks for a department in original document order (insertion/chunk_id order),
+     * for reconstructing full sections to browse -- as opposed to findNearest(), which is
+     * for RAG similarity search.
+     */
     public List<HandbookChunk> findAllByDepartmentOrdered(String department) {
         return jdbcTemplate.query(
                 "SELECT chunk_id, department, section_title, content " +

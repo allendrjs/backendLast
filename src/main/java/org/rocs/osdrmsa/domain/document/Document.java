@@ -21,4 +21,14 @@ public class Document {
     @Lob
     @Column(name = "EXTRACTEDTEXT")
     private String extractedText;
+
+    @Column(name = "FILENAME")
+    private String fileName;
+
+    @Column(name = "CONTENTTYPE")
+    private String contentType;
+
+    @Lob
+    @Column(name = "FILEDATA")
+    private byte[] fileData;
 }
