@@ -3,6 +3,7 @@ package org.rocs.osdrmsa.service.appeal.impl;
 import org.rocs.osdrmsa.domain.appeal.Appeal;
 import org.rocs.osdrmsa.domain.enrollment.Enrollment;
 import org.rocs.osdrmsa.domain.record.Record;
+import org.rocs.osdrmsa.domain.record.RecordStatus;
 import org.rocs.osdrmsa.repository.appeal.AppealRepository;
 import org.rocs.osdrmsa.repository.enrollment.EnrollmentRepository;
 import org.rocs.osdrmsa.repository.record.RecordRepository;
@@ -54,7 +55,12 @@ public class AppealServiceImpl implements AppealService {
         appeal.setDateFiled(LocalDate.now());
         appeal.setStatus("PENDING");
 
-        return appealRepository.save(appeal);
+        Appeal saved = appealRepository.save(appeal);
+
+        record.setStatus(RecordStatus.PROCESSING);
+        recordRepository.save(record);
+
+        return saved;
     }
 
     @Override
@@ -66,6 +72,12 @@ public class AppealServiceImpl implements AppealService {
         appeal.setDateProcessed(LocalDate.now());
 
         appealRepository.save(appeal);
+
+        Record record = appeal.getRecord();
+        if (record != null) {
+            record.setStatus(RecordStatus.APPROVED);
+            recordRepository.save(record);
+        }
     }
 
     @Override
@@ -81,5 +93,12 @@ public class AppealServiceImpl implements AppealService {
         appeal.setDateProcessed(LocalDate.now());
 
         appealRepository.save(appeal);
+
+        Record record = appeal.getRecord();
+        if (record != null) {
+            record.setStatus(RecordStatus.RESOLVED);
+            record.setDateOfResolution(LocalDate.now());
+            recordRepository.save(record);
+        }
     }
 }
