@@ -20,7 +20,7 @@ spring:
         format_sql: true
 
 server:
-  port: 8081
+  port: 8080
 
 spring.servlet.multipart:
   # Spring Boot's own defaults are 1MB per file / 10MB per request -- far too
