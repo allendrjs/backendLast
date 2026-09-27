@@ -17,12 +17,6 @@ public class HandbookAdminController {
         this.handbookIngestionService = handbookIngestionService;
     }
 
-    /**
-     * Re-embeds and reloads the bundled Student Handbook chunks into the database.
-     * Run this once after deploying a build that ships a new handbook_chunks.json,
-     * or whenever the handbook content changes. Takes a while (one Ollama embedding
-     * call per chunk, ~700+ chunks) so expect this request to run for several minutes.
-     */
     @PostMapping("/ingest")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> ingest() {

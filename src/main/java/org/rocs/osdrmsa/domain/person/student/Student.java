@@ -1,5 +1,6 @@
 package org.rocs.osdrmsa.domain.person.student;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.rocs.osdrmsa.domain.department.Department;
@@ -23,18 +24,24 @@ public class Student {
     @Column(name = "studentType")
     private String studentType;
 
-    @Transient
-    private String contactNumber;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "department")
     private Department department;
+
+    @Column(name = "contactNumber")
+    private String contactNumber;
+
+    @JsonProperty("isActive")
+    @Column(name = "isActive", nullable = false)
+    private boolean isActive = true;
 
     @ManyToMany
     @JoinTable(
             name = "studentGuardian",
             joinColumns = @JoinColumn(name = "studentID"),
-            inverseJoinColumns = @JoinColumn(name = "guardianID"))
-    private java.util.List<org.rocs.osdrmsa.domain.person.guardian.Guardian> guardians =
-            new java.util.ArrayList<>();
+            inverseJoinColumns = @JoinColumn(name = "guardianID")
+    )
+    private java.util.List<
+            org.rocs.osdrmsa.domain.person.guardian.Guardian
+            > guardians = new java.util.ArrayList<>();
 }

@@ -2,6 +2,7 @@ package org.rocs.osdrmsa.controller.login;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
+import org.rocs.osdrmsa.dto.request.ChangePasswordRequest;
 import org.rocs.osdrmsa.dto.request.LoginRequest;
 import org.rocs.osdrmsa.dto.response.LoginResponse;
 import org.rocs.osdrmsa.domain.login.Login;
@@ -40,6 +41,7 @@ public class LoginController {
             @RequestHeader(SecurityConstant.AUTH_HEADER) String authorizationHeader) {
 
         String currentToken = stripBearerPrefix(authorizationHeader);
+
         Optional<DecodedJWT> decoded = jwtService.verify(currentToken);
 
         if (decoded.isEmpty()) {
@@ -48,8 +50,23 @@ public class LoginController {
 
         String username = jwtService.extractUsername(decoded.get());
 
-        return loginService.getByUsername(username)
-                .map(login -> ResponseEntity.ok(new LoginResponse(jwtService.generateToken(login), login.getUsername(), login.getRole() != null ? login.getRole().name() : null))).orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        Optional<Login> loginOptional = loginService.getByUsername(username);
+
+        if (loginOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Login login = loginOptional.get();
+
+        if (login.isLocked() || !login.isActive()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String token = jwtService.generateToken(login);
+
+        return ResponseEntity.ok(
+                new LoginResponse(token, login.getUsername(), login.getRole() != null ? login.getRole().name() : null)
+        );
     }
 
     @PostMapping("/logout")
@@ -62,5 +79,24 @@ public class LoginController {
             return header.substring(SecurityConstant.TOKEN_PREFIX.length());
         }
         return header;
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@RequestHeader(SecurityConstant.AUTH_HEADER) String authorizationHeader,
+                                               @RequestBody ChangePasswordRequest request) {
+
+        String currentToken = stripBearerPrefix(authorizationHeader);
+
+        Optional<DecodedJWT> decoded = jwtService.verify(currentToken);
+
+        if (decoded.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String username = jwtService.extractUsername(decoded.get());
+
+        loginService.changePassword(username, request.currentPassword(), request.newPassword());
+
+        return ResponseEntity.ok().build();
     }
 }
