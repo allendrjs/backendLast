@@ -75,7 +75,8 @@ public class DocumentServiceImpl implements DocumentService {
     private final Tika tika = new Tika();
 
     @Override
-    public DocumentUploadResponse processAppealUpload(String username, byte[] fileBytes, String filename) {
+    public DocumentUploadResponse processAppealUpload(
+            String username, byte[] fileBytes, String filename, String contentType) {
         if (fileBytes == null || fileBytes.length == 0) {
             throw new IllegalArgumentException("Uploaded file is empty.");
         }
@@ -87,6 +88,9 @@ public class DocumentServiceImpl implements DocumentService {
         Document document = new Document();
         document.setStudent(student);
         document.setExtractedText(extractedText);
+        document.setFileName(filename);
+        document.setContentType(contentType);
+        document.setFileData(fileBytes);
         document = documentRepository.save(document);
 
         String aiSuggestion = generateCaseSuggestion(document, student, extractedText);

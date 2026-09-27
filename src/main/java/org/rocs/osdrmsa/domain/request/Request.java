@@ -41,6 +41,13 @@ public class Request {
     @Column(name = "aiResponse")
     private String aiResponse;
 
+    @Column(name = "aiRecommendation")
+    private String aiRecommendation;
+
+    @Lob
+    @Column(name = "aiReasoning")
+    private String aiReasoning;
+
     @Column(name = "remarks")
     private String remarks;
 }

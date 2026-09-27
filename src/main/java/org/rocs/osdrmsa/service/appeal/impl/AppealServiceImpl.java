@@ -1,13 +1,18 @@
 package org.rocs.osdrmsa.service.appeal.impl;
 
 import org.rocs.osdrmsa.domain.appeal.Appeal;
+import org.rocs.osdrmsa.domain.document.Document;
 import org.rocs.osdrmsa.domain.enrollment.Enrollment;
 import org.rocs.osdrmsa.domain.record.Record;
 import org.rocs.osdrmsa.domain.record.RecordStatus;
 import org.rocs.osdrmsa.repository.appeal.AppealRepository;
+import org.rocs.osdrmsa.repository.document.DocumentRepository;
 import org.rocs.osdrmsa.repository.enrollment.EnrollmentRepository;
 import org.rocs.osdrmsa.repository.record.RecordRepository;
+import org.rocs.osdrmsa.service.ai.AiCaseAnalysisService;
 import org.rocs.osdrmsa.service.appeal.AppealService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,14 +22,20 @@ import java.util.NoSuchElementException;
 @Service
 public class AppealServiceImpl implements AppealService {
 
+    private static final Logger log = LoggerFactory.getLogger(AppealServiceImpl.class);
+
     private final AppealRepository appealRepository;
     private final RecordRepository recordRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final DocumentRepository documentRepository;
+    private final AiCaseAnalysisService aiCaseAnalysisService;
 
-    public AppealServiceImpl(AppealRepository appealRepository, RecordRepository recordRepository, EnrollmentRepository enrollmentRepository) {
+    public AppealServiceImpl(AppealRepository appealRepository, RecordRepository recordRepository, EnrollmentRepository enrollmentRepository, DocumentRepository documentRepository, AiCaseAnalysisService aiCaseAnalysisService) {
         this.appealRepository = appealRepository;
         this.recordRepository = recordRepository;
         this.enrollmentRepository = enrollmentRepository;
+        this.documentRepository = documentRepository;
+        this.aiCaseAnalysisService = aiCaseAnalysisService;
     }
 
     @Override
@@ -38,7 +49,7 @@ public class AppealServiceImpl implements AppealService {
     }
 
     @Override
-    public Appeal submitAppeal(Long recordId, Long enrollmentId, String message) {
+    public Appeal submitAppeal(Long recordId, Long enrollmentId, String message, Long documentId) {
         Record record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new NoSuchElementException("Record not found."));
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
@@ -55,12 +66,46 @@ public class AppealServiceImpl implements AppealService {
         appeal.setDateFiled(LocalDate.now());
         appeal.setStatus("PENDING");
 
+        if (documentId != null) {
+            documentRepository.findById(documentId).ifPresent(appeal::setDocument);
+        }
+
+        AiCaseAnalysisService.Result aiResult = analyzeAppeal(record, enrollment, message);
+        appeal.setAiRecommendation(aiResult.recommendation());
+        appeal.setAiReasoning(aiResult.reasoning());
+
         Appeal saved = appealRepository.save(appeal);
 
         record.setStatus(RecordStatus.PROCESSING);
         recordRepository.save(record);
 
         return saved;
+    }
+
+    private AiCaseAnalysisService.Result analyzeAppeal(Record record, Enrollment enrollment, String message) {
+        try {
+            StringBuilder context = new StringBuilder();
+            context.append("CASE TYPE: Student Appeal\n");
+            context.append("Student ID: ")
+                    .append(enrollment.getStudent() != null ? enrollment.getStudent().getStudentId() : "Unknown")
+                    .append("\n");
+            context.append("Offense: ")
+                    .append(record.getOffense() != null ? record.getOffense().getOffense() : "Unknown")
+                    .append("\n");
+            context.append("Offense Type: ")
+                    .append(record.getOffense() != null ? record.getOffense().getType() : "Unknown")
+                    .append("\n");
+            context.append("Date of Violation: ").append(record.getDateOfViolation()).append("\n");
+            context.append("Record Status: ").append(record.getStatus()).append("\n");
+            context.append("Appeal Message: ").append(message).append("\n");
+
+            String department = enrollment.getDepartment() != null ? enrollment.getDepartment().name() : null;
+
+            return aiCaseAnalysisService.analyze("Student Appeal", department, context.toString());
+        } catch (Exception e) {
+            log.warn("Appeal AI analysis failed: {}", e.getMessage());
+            return new AiCaseAnalysisService.Result("UNCERTAIN", "AI analysis is temporarily unavailable.");
+        }
     }
 
     @Override
