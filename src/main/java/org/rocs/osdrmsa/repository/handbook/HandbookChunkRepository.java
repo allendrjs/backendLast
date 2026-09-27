@@ -59,6 +59,23 @@ public class HandbookChunkRepository {
         return count == null ? 0 : count;
     }
 
+    /**
+     * All chunks for a department in original document order (insertion/chunk_id order),
+     * for reconstructing full sections to browse -- as opposed to findNearest(), which is
+     * for RAG similarity search.
+     */
+    public List<HandbookChunk> findAllByDepartmentOrdered(String department) {
+        return jdbcTemplate.query(
+                "SELECT chunk_id, department, section_title, content " +
+                        "FROM handbook_chunk WHERE department = ? ORDER BY chunk_id",
+                (rs, rowNum) -> new HandbookChunk(
+                        rs.getLong("chunk_id"),
+                        rs.getString("department"),
+                        rs.getString("section_title"),
+                        rs.getString("content")
+                ), department);
+    }
+
     private String toVectorLiteral(float[] values) {
         String joined = IntStream.range(0, values.length)
                 .mapToObj(i -> Float.toString(values[i]))
