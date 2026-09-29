@@ -13,6 +13,7 @@ import org.rocs.osdrmsa.domain.person.employee.Employee;
 import org.rocs.osdrmsa.domain.request.Request;
 import org.rocs.osdrmsa.domain.request.RequestStatus;
 import org.rocs.osdrmsa.domain.record.Record;
+import org.rocs.osdrmsa.domain.record.RecordStatus;
 import org.rocs.osdrmsa.domain.enrollment.Enrollment;
 import org.rocs.osdrmsa.repository.employee.EmployeeRepository;
 import org.rocs.osdrmsa.repository.login.LoginRepository;
@@ -41,6 +42,7 @@ public class RequestServiceImpl implements RequestService {
     private final AiCaseAnalysisService aiCaseAnalysisService;
     private final EnrollmentRepository enrollmentRepository;
     private final StudentRepository studentRepository;
+    private final org.rocs.osdrmsa.service.notification.NotificationService notificationService;
 
     private static final Logger log =
             LoggerFactory.getLogger(RequestServiceImpl.class);
@@ -132,67 +134,10 @@ public class RequestServiceImpl implements RequestService {
             return recordRepository.findByEnrollmentIn(enrollments);
         }
 
-        if (type.equalsIgnoreCase("By Section")) {
-
-            List<Enrollment> enrollments =
-                    enrollmentRepository.findByDepartmentAndSectionIgnoreCase(
-                            department,
-                            details
-                    );
-
-            if (enrollments.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Section '" + details +
-                                "' was not found among the enrolled students " +
-                                "in your department."
-                );
-            }
-
-            return recordRepository.findByEnrollmentIn(enrollments);
-        }
-
-        if (type.equalsIgnoreCase("By Batch")) {
-
-            String normalizedLevel = normalizeStudentLevel(details);
-
-            List<Enrollment> enrollments =
-                    enrollmentRepository
-                            .findByDepartmentAndStudentLevelIgnoreCase(
-                                    department,
-                                    normalizedLevel
-                            );
-
-            if (enrollments.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Student level '" + details +
-                                "' was not found among the enrolled students " +
-                                "in your department."
-                );
-            }
-
-            return recordRepository.findByEnrollmentIn(enrollments);
-        }
-
         throw new IllegalArgumentException(
                 "Unsupported request type: " + type
+                        + ". Department head requests may only be filed by student."
         );
-    }
-
-    private String normalizeStudentLevel(String details) {
-
-        String normalized = details
-                .trim()
-                .replaceAll("\\s+", " ");
-
-        if (normalized.matches("(?i)^grade\\s*-?\\d+$")) {
-
-            String number = normalized
-                    .replaceAll("(?i)^grade\\s*-?", "");
-
-            return "Grade-" + number;
-        }
-
-        return normalized;
     }
 
     private String buildRequestContext(Request request, List<Record> records) {
@@ -337,7 +282,34 @@ public class RequestServiceImpl implements RequestService {
         request.setRemarks(remarks);
         request.setDateProcessed(new Date());
 
-        return requestRepository.save(request);
+        Request saved = requestRepository.save(request);
+
+        notifyRequester(saved, decision, remarks);
+
+        return saved;
+    }
+
+    private void notifyRequester(Request request, RequestStatus decision, String remarks) {
+        try {
+            Employee employee =
+                    employeeRepository.findById(request.getEmployeeID()).orElse(null);
+
+            if (employee == null || employee.getPerson() == null) {
+                return;
+            }
+
+            String email = employee.getPerson().getEmail();
+            String name = employee.getPerson().getFirstName();
+
+            notificationService.notifyRequestDecision(
+                    email, name, request.getRequestID(), decision.name(), remarks
+            );
+        } catch (Exception e) {
+            log.warn(
+                    "Failed to notify requester for request {}: {}",
+                    request.getRequestID(), e.getMessage()
+            );
+        }
     }
 
     @Override
@@ -425,5 +397,58 @@ public class RequestServiceImpl implements RequestService {
         }
 
         return employee.getDepartment().name();
+    }
+
+    @Override
+    public String getGraduationEligibility(Request request) {
+
+        if (request == null
+                || request.getDetails() == null
+                || request.getDetails().isBlank()
+                || request.getType() == null
+                || !request.getType().trim().equalsIgnoreCase("By Student")) {
+            return "UNDER_REVIEW";
+        }
+
+        try {
+            Employee employee =
+                    employeeRepository.findById(request.getEmployeeID())
+                            .orElse(null);
+
+            Department department =
+                    employee != null ? employee.getDepartment() : null;
+
+            if (department == null) {
+                return "UNDER_REVIEW";
+            }
+
+            List<Enrollment> enrollments =
+                    enrollmentRepository.findByStudentStudentIdAndDepartment(
+                            request.getDetails().trim(),
+                            department
+                    );
+
+            if (enrollments.isEmpty()) {
+                return "UNDER_REVIEW";
+            }
+
+            List<Record> records =
+                    recordRepository.findByEnrollmentIn(enrollments);
+
+            boolean hasOpenCase = records.stream().anyMatch(record ->
+                    record.getStatus() == RecordStatus.PENDING
+                            || record.getStatus() == RecordStatus.PROCESSING
+            );
+
+            return hasOpenCase ? "DISQUALIFIED" : "QUALIFIED";
+
+        } catch (Exception e) {
+            log.warn(
+                    "Graduation eligibility computation failed for request {}: {}",
+                    request.getRequestID(),
+                    e.getMessage()
+            );
+            return "UNDER_REVIEW";
+        }
     }
 }

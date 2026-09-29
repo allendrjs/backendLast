@@ -29,5 +29,8 @@ public class Person {
 
     @Column(name = "DATEOFBIRTH")
     private LocalDate dateOfBirth;
+
+    @Column(name = "EMAIL", length = 150)
+    private String email;
 }
 
