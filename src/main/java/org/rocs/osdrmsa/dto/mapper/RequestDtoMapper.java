@@ -19,7 +19,7 @@ public final class RequestDtoMapper {
         return entity;
     }
 
-    public static RequestResponse toResponse(Request request) {
+    public static RequestResponse toResponse(Request request, String graduationEligibility) {
         if (request == null) {
             return null;
         }
@@ -34,7 +34,7 @@ public final class RequestDtoMapper {
                 request.getDateFiled(),
                 DateConversion.toLocalDate(request.getDateProcessed()),
                 request.getRemarks(),
-                request.getAiResponse()
+                graduationEligibility
         );
     }
 }

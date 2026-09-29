@@ -62,7 +62,7 @@ public class RecordController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'PRINCIPAL', 'DSS')")
     public ResponseEntity<List<AppealResponse.RecordResponse>> getByDepartment(
             @RequestParam Department department,
             @RequestParam String schoolYear) {

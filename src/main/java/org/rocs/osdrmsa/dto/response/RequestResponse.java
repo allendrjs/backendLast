@@ -14,5 +14,5 @@ public record RequestResponse(
         LocalDate dateFiled,
         LocalDate dateProcessed,
         String remarks,
-        String aiResponse) {
+        String graduationEligibility) {
 }

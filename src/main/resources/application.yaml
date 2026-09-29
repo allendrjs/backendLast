@@ -39,3 +39,23 @@ ollama:
 handbook:
   embedding-dimensions: ${HANDBOOK_EMBEDDING_DIMENSIONS:768}
   top-k: ${HANDBOOK_TOP_K:5}
+
+# Email notifications for request/appeal decisions. Disabled by default —
+# no SMTP credentials are provisioned. Set NOTIFICATIONS_ENABLED=true and
+# the SMTP_* env vars in the deployment environment to turn this on; until
+# then, NotificationServiceImpl logs and no-ops instead of sending mail.
+notifications:
+  enabled: ${NOTIFICATIONS_ENABLED:false}
+  from-address: ${NOTIFICATIONS_FROM_ADDRESS:noreply@rc-osd.tech}
+
+spring.mail:
+  host: ${SMTP_HOST:localhost}
+  port: ${SMTP_PORT:587}
+  username: ${SMTP_USERNAME:}
+  password: ${SMTP_PASSWORD:}
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
