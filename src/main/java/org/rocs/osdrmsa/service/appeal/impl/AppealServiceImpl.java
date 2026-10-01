@@ -1,10 +1,14 @@
 package org.rocs.osdrmsa.service.appeal.impl;
 
+import org.rocs.osdrmsa.domain.academicperiod.AcademicPeriod;
 import org.rocs.osdrmsa.domain.appeal.Appeal;
+import org.rocs.osdrmsa.domain.appeal.AppealEditHistory;
 import org.rocs.osdrmsa.domain.document.Document;
 import org.rocs.osdrmsa.domain.enrollment.Enrollment;
 import org.rocs.osdrmsa.domain.record.Record;
 import org.rocs.osdrmsa.domain.record.RecordStatus;
+import org.rocs.osdrmsa.repository.academicperiod.AcademicPeriodRepository;
+import org.rocs.osdrmsa.repository.appeal.AppealEditHistoryRepository;
 import org.rocs.osdrmsa.repository.appeal.AppealRepository;
 import org.rocs.osdrmsa.repository.document.DocumentRepository;
 import org.rocs.osdrmsa.repository.enrollment.EnrollmentRepository;
@@ -16,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -25,13 +30,24 @@ public class AppealServiceImpl implements AppealService {
     private static final Logger log = LoggerFactory.getLogger(AppealServiceImpl.class);
 
     private final AppealRepository appealRepository;
+    private final AppealEditHistoryRepository appealEditHistoryRepository;
+    private final AcademicPeriodRepository academicPeriodRepository;
     private final RecordRepository recordRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final DocumentRepository documentRepository;
     private final AiCaseAnalysisService aiCaseAnalysisService;
 
-    public AppealServiceImpl(AppealRepository appealRepository, RecordRepository recordRepository, EnrollmentRepository enrollmentRepository, DocumentRepository documentRepository, AiCaseAnalysisService aiCaseAnalysisService) {
+    public AppealServiceImpl(
+            AppealRepository appealRepository,
+            AppealEditHistoryRepository appealEditHistoryRepository,
+            AcademicPeriodRepository academicPeriodRepository,
+            RecordRepository recordRepository,
+            EnrollmentRepository enrollmentRepository,
+            DocumentRepository documentRepository,
+            AiCaseAnalysisService aiCaseAnalysisService) {
         this.appealRepository = appealRepository;
+        this.appealEditHistoryRepository = appealEditHistoryRepository;
+        this.academicPeriodRepository = academicPeriodRepository;
         this.recordRepository = recordRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.documentRepository = documentRepository;
@@ -58,6 +74,24 @@ public class AppealServiceImpl implements AppealService {
         if (message == null || message.trim().isEmpty()) {
             throw new IllegalArgumentException("Appeal message is required.");
         }
+
+        boolean hasUnapprovedAppeal = appealRepository.findByRecord_RecordId(recordId).stream()
+                .anyMatch(existing -> !"APPROVED".equalsIgnoreCase(existing.getStatus()));
+        if (hasUnapprovedAppeal) {
+            throw new IllegalStateException(
+                    "An appeal for this record already exists and has not been approved. "
+                            + "If it was denied, please visit the Office of Student Discipline in person."
+            );
+        }
+
+        academicPeriodRepository.findByActiveTrue().ifPresent(period -> {
+            if (period.getAppealDeadline() != null && LocalDate.now().isAfter(period.getAppealDeadline())) {
+                throw new IllegalStateException(
+                        "The appeal window for " + period.getLabel()
+                                + " has closed. Please visit the Office of Student Discipline in person."
+                );
+            }
+        });
 
         Appeal appeal = new Appeal();
         appeal.setRecord(record);
@@ -106,6 +140,41 @@ public class AppealServiceImpl implements AppealService {
             log.warn("Appeal AI analysis failed: {}", e.getMessage());
             return new AiCaseAnalysisService.Result("UNCERTAIN", "AI analysis is temporarily unavailable.");
         }
+    }
+
+    @Override
+    public Appeal updateAppeal(Long appealId, String newMessage) {
+        if (newMessage == null || newMessage.trim().isEmpty()) {
+            throw new IllegalArgumentException("Appeal message is required.");
+        }
+
+        Appeal appeal = appealRepository.findById(appealId)
+                .orElseThrow(() -> new NoSuchElementException("Appeal not found."));
+
+        if (!"PENDING".equalsIgnoreCase(appeal.getStatus()) || appeal.getDateProcessed() != null) {
+            throw new IllegalStateException("This appeal can no longer be edited.");
+        }
+
+        String oldMessage = appeal.getMessage();
+        appeal.setMessage(newMessage.trim());
+        appeal.setEdited(true);
+        appeal.setEditedAt(LocalDate.now());
+
+        Appeal saved = appealRepository.save(appeal);
+
+        AppealEditHistory history = new AppealEditHistory();
+        history.setAppeal(saved);
+        history.setOldMessage(oldMessage);
+        history.setNewMessage(saved.getMessage());
+        history.setEditedAt(LocalDateTime.now());
+        appealEditHistoryRepository.save(history);
+
+        return saved;
+    }
+
+    @Override
+    public List<AppealEditHistory> getEditHistory(Long appealId) {
+        return appealEditHistoryRepository.findByAppeal_AppealIdOrderByEditedAtAsc(appealId);
     }
 
     @Override

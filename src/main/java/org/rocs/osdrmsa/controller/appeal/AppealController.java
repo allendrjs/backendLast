@@ -2,8 +2,10 @@ package org.rocs.osdrmsa.controller.appeal;
 
 import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.domain.appeal.Appeal;
+import org.rocs.osdrmsa.domain.appeal.AppealEditHistory;
 import org.rocs.osdrmsa.dto.request.AppealFileRequest;
 import org.rocs.osdrmsa.dto.request.AppealRequest;
+import org.rocs.osdrmsa.dto.request.AppealUpdateRequest;
 import org.rocs.osdrmsa.service.appeal.AppealService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +39,18 @@ public class AppealController {
         Appeal appeal = appealService.submitAppeal(
                 request.recordId(), request.enrollmentId(), request.message(), request.documentId());
         return ResponseEntity.ok(appeal);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER') and @access.isSelfAppeal(#id)")
+    public ResponseEntity<Appeal> updateAppeal(@PathVariable Long id, @RequestBody AppealUpdateRequest request) {
+        return ResponseEntity.ok(appealService.updateAppeal(id, request.message()));
+    }
+
+    @GetMapping("/{id}/history")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<AppealEditHistory>> getEditHistory(@PathVariable Long id) {
+        return ResponseEntity.ok(appealService.getEditHistory(id));
     }
 
     @PutMapping("/{id}/approve")
