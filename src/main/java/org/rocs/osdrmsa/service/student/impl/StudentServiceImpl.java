@@ -57,6 +57,14 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public List<Student> search(String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        return studentRepository.search(query.trim());
+    }
+
+    @Override
     public Student create(Student student) {
         if (student.getStudentId() == null ||
                 student.getStudentId().isBlank()) {
