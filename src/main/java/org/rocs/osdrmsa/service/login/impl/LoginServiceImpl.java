@@ -2,6 +2,7 @@ package org.rocs.osdrmsa.service.login.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.domain.login.Login;
+import org.rocs.osdrmsa.dto.response.LockedAccountResponse;
 import org.rocs.osdrmsa.exception.AccountInactiveException;
 import org.rocs.osdrmsa.exception.AccountLockedException;
 import org.rocs.osdrmsa.exception.InvalidCredentialsException;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,6 +27,7 @@ public class LoginServiceImpl implements LoginService {
 
         if (username == null || username.isBlank() ||
                 password == null || password.isBlank()) {
+
             throw new InvalidCredentialsException("Username and password are required.");
         }
 
@@ -46,8 +49,7 @@ public class LoginServiceImpl implements LoginService {
                 loginRepository.save(login);
 
                 throw new AccountLockedException("Your account has been locked after 5 failed login attempts. " +
-                                "Please contact the OSD office."
-                );
+                                "Please contact the OSD office.");
             }
 
             loginRepository.save(login);
@@ -79,6 +81,40 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
+    public List<LockedAccountResponse> getLockedAccounts() {
+
+        return loginRepository.findByLockedTrue()
+                .stream()
+                .map(login -> new LockedAccountResponse(
+                        login.getUsername(),
+                        login.getRole() != null ? login.getRole().name() : null,
+                        login.getFailedLoginAttempts(),
+                        login.isLocked()
+                ))
+                .toList();
+    }
+
+    @Override
+    public void unlockAccount(String username) {
+        Login login = loginRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User account not found."));
+
+        if (login.getPerson() == null) {
+            throw new IllegalArgumentException("No person record found for this account.");
+        }
+
+        String lastName = login.getPerson().getLastName()
+                .replaceAll("\\s+", "")
+                .toLowerCase();
+
+        login.setPassword(passwordEncoder.encode(lastName));
+        login.setLocked(false);
+        login.setFailedLoginAttempts(0);
+
+        loginRepository.save(login);
+    }
+
+    @Override
     public void changePassword(String username, String currentPassword, String newPassword) {
 
         if (username == null || username.isBlank() ||
@@ -88,9 +124,7 @@ public class LoginServiceImpl implements LoginService {
             throw new IllegalArgumentException("All password fields are required.");
         }
 
-        Login login = loginRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new InvalidCredentialsException("User account not found."));
+        Login login = loginRepository.findByUsername(username).orElseThrow(() -> new InvalidCredentialsException("User account not found."));
 
         if (!passwordEncoder.matches(currentPassword, login.getPassword())) {
             throw new InvalidCredentialsException("Current password is incorrect.");
@@ -124,6 +158,5 @@ public class LoginServiceImpl implements LoginService {
 
         loginRepository.save(login);
     }
-
 }
 
