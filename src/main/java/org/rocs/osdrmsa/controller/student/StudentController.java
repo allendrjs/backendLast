@@ -35,6 +35,17 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getActive());
     }
 
+    /**
+     * Case-insensitive search by student ID, first name, or last name.
+     * Used by prefects/staff/admins to find a student when recording a
+     * new offense (part of the offline-first plan's Phase 1 API surface).
+     */
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
+    public ResponseEntity<List<Student>> searchStudents(@RequestParam String query) {
+        return ResponseEntity.ok(studentService.search(query));
+    }
+
     @GetMapping("/department/{department}")
     public ResponseEntity<List<Student>> getStudentsByDepartment(@PathVariable Department department) {
         return ResponseEntity.ok(studentService.getByDepartment(department));

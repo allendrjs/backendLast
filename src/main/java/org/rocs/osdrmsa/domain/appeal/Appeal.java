@@ -2,6 +2,8 @@ package org.rocs.osdrmsa.domain.appeal;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.rocs.osdrmsa.domain.document.Document;
 import org.rocs.osdrmsa.domain.enrollment.Enrollment;
 import org.rocs.osdrmsa.domain.record.Record;
@@ -51,4 +53,11 @@ public class Appeal {
     @Lob
     @Column(name = "AIREASONING")
     private String aiReasoning;
+
+    @JdbcTypeCode(SqlTypes.INTEGER)
+    @Column(name = "EDITED", nullable = false)
+    private boolean edited = false;
+
+    @Column(name = "EDITEDAT")
+    private LocalDate editedAt;
 }
