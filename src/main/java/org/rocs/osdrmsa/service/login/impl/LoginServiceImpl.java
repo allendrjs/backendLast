@@ -28,21 +28,41 @@ public class LoginServiceImpl implements LoginService {
             throw new InvalidCredentialsException("Username and password are required.");
         }
 
-        Login login = loginRepository.findByUsername(username).orElseThrow(() ->
-                new InvalidCredentialsException("Invalid username or password."));
-
-        if (!passwordEncoder.matches(password, login.getPassword())) {
-            throw new InvalidCredentialsException("Invalid username or password.");
-        }
+        Login login = loginRepository.findByUsername(username).orElseThrow(() -> new InvalidCredentialsException("Invalid username or password."));
 
         if (login.isLocked()) {
             throw new AccountLockedException("This account is locked. Please contact the OSD office.");
+        }
+
+        if (!passwordEncoder.matches(password, login.getPassword())) {
+
+            int failedAttempts = login.getFailedLoginAttempts() + 1;
+
+            login.setFailedLoginAttempts(failedAttempts);
+
+            if (failedAttempts >= 5) {
+                login.setLocked(true);
+
+                loginRepository.save(login);
+
+                throw new AccountLockedException("Your account has been locked after 5 failed login attempts. " +
+                                "Please contact the OSD office."
+                );
+            }
+
+            loginRepository.save(login);
+
+            throw new InvalidCredentialsException(
+                    "Invalid username or password. " +
+                            "Attempt " + failedAttempts + " of 5."
+            );
         }
 
         if (!login.isActive()) {
             throw new AccountInactiveException("Your account has expired. Please contact the OSD office.");
         }
 
+        login.setFailedLoginAttempts(0);
         login.setLastLoginDate(new Date());
 
         return loginRepository.save(login);
