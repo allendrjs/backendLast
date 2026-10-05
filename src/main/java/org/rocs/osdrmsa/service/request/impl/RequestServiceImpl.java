@@ -133,10 +133,67 @@ public class RequestServiceImpl implements RequestService {
             return recordRepository.findByEnrollmentIn(enrollments);
         }
 
+        if (type.equalsIgnoreCase("By Section")) {
+
+            List<Enrollment> enrollments =
+                    enrollmentRepository.findByDepartmentAndSectionIgnoreCase(
+                            department,
+                            details
+                    );
+
+            if (enrollments.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Section '" + details +
+                                "' was not found among the enrolled students " +
+                                "in your department."
+                );
+            }
+
+            return recordRepository.findByEnrollmentIn(enrollments);
+        }
+
+        if (type.equalsIgnoreCase("By Batch")) {
+
+            String normalizedLevel = normalizeStudentLevel(details);
+
+            List<Enrollment> enrollments =
+                    enrollmentRepository
+                            .findByDepartmentAndStudentLevelIgnoreCase(
+                                    department,
+                                    normalizedLevel
+                            );
+
+            if (enrollments.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Student level '" + details +
+                                "' was not found among the enrolled students " +
+                                "in your department."
+                );
+            }
+
+            return recordRepository.findByEnrollmentIn(enrollments);
+        }
+
         throw new IllegalArgumentException(
                 "Unsupported request type: " + type
-                        + ". Department head requests may only be filed by student."
         );
+    }
+
+    private String normalizeStudentLevel(String details) {
+
+        String normalized = details
+                .trim()
+                .replaceAll("\\s+", " ");
+
+        if (normalized.matches("(?i)^grade\\s*-?\\d+$")) {
+
+            String number = normalized
+                    .replaceAll("(?i)^grade\\s*-?", "");
+
+            return "Grade-" + number;
+        }
+
+        return normalized;
     }
 
     private String buildRequestContext(Request request, List<Record> records) {
@@ -281,9 +338,7 @@ public class RequestServiceImpl implements RequestService {
         request.setRemarks(remarks);
         request.setDateProcessed(new Date());
 
-        Request saved = requestRepository.save(request);
-
-        return saved;
+        return requestRepository.save(request);
     }
 
     @Override

@@ -60,4 +60,7 @@ public class Login {
             joinDate = new Date();
         }
     }
+
+    @Column(name = "failed_login_attempts", nullable = false)
+    private int failedLoginAttempts = 0;
 }

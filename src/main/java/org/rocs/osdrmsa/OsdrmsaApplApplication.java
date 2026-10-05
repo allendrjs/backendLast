@@ -8,6 +8,7 @@ public class OsdrmsaApplApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(OsdrmsaApplApplication.class, args);
+
 	}
 
 }
