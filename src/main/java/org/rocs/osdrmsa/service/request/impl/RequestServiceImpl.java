@@ -26,6 +26,7 @@ import org.rocs.osdrmsa.repository.enrollment.EnrollmentRepository;
 import org.rocs.osdrmsa.repository.student.StudentRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -116,18 +117,32 @@ public class RequestServiceImpl implements RequestService {
 
         if (type.equalsIgnoreCase("By Student")) {
 
-            List<Enrollment> enrollments =
-                    enrollmentRepository.findByStudentStudentIdAndDepartment(
-                            details,
-                            department
-                    );
+            List<String> studentIds = parseStudentIds(details);
 
-            if (enrollments.isEmpty()) {
+            if (studentIds.isEmpty()) {
                 throw new IllegalArgumentException(
-                        "Student ID '" + details +
-                                "' was not found among the enrolled students " +
-                                "in your department."
+                        "Select at least one student."
                 );
+            }
+
+            List<Enrollment> enrollments = new ArrayList<>();
+
+            for (String studentId : studentIds) {
+                List<Enrollment> found =
+                        enrollmentRepository.findByStudentStudentIdAndDepartment(
+                                studentId,
+                                department
+                        );
+
+                if (found.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "Student ID '" + studentId +
+                                    "' was not found among the enrolled students " +
+                                    "in your department."
+                    );
+                }
+
+                enrollments.addAll(found);
             }
 
             return recordRepository.findByEnrollmentIn(enrollments);
@@ -177,6 +192,14 @@ public class RequestServiceImpl implements RequestService {
         throw new IllegalArgumentException(
                 "Unsupported request type: " + type
         );
+    }
+
+    private List<String> parseStudentIds(String details) {
+        return java.util.Arrays.stream(details.split("[,;\\s]+"))
+                .map(String::trim)
+                .filter(id -> !id.isEmpty())
+                .distinct()
+                .toList();
     }
 
     private String normalizeStudentLevel(String details) {
@@ -451,11 +474,16 @@ public class RequestServiceImpl implements RequestService {
                 return "UNDER_REVIEW";
             }
 
-            List<Enrollment> enrollments =
-                    enrollmentRepository.findByStudentStudentIdAndDepartment(
-                            request.getDetails().trim(),
-                            department
-                    );
+            List<Enrollment> enrollments = new ArrayList<>();
+
+            for (String studentId : parseStudentIds(request.getDetails())) {
+                enrollments.addAll(
+                        enrollmentRepository.findByStudentStudentIdAndDepartment(
+                                studentId,
+                                department
+                        )
+                );
+            }
 
             if (enrollments.isEmpty()) {
                 return "UNDER_REVIEW";
