@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,5 +25,14 @@ public class EmployeeController {
         EmployeeSummary summary = CommonDtoMapper.toEmployeeSummary(
                 employeeService.getBySelf(authentication.getName()));
         return ResponseEntity.ok(summary);
+    }
+
+    @GetMapping("/{employeeId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT')")
+    public ResponseEntity<EmployeeSummary> getById(@PathVariable String employeeId) {
+        return employeeService.getById(employeeId)
+                .map(CommonDtoMapper::toEmployeeSummary)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

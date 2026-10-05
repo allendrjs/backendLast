@@ -12,6 +12,7 @@ import org.rocs.osdrmsa.utils.security.jwt.provider.token.JwtService;
 import org.rocs.osdrmsa.service.login.LoginService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -73,11 +74,13 @@ public class LoginController {
     }
 
     @GetMapping("/locked")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<LockedAccountResponse>> getLockedAccounts() {
         return ResponseEntity.ok(loginService.getLockedAccounts());
     }
 
     @PutMapping("/{username}/unlock")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> unlockAccount(@PathVariable String username) {
         loginService.unlockAccount(username);
         return ResponseEntity.ok().build();

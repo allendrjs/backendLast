@@ -33,7 +33,12 @@ public class RequestController {
                 authentication.getName()
         );
 
-        return ResponseEntity.ok(RequestDtoMapper.toResponse(submitted));
+        return ResponseEntity.ok(
+                RequestDtoMapper.toResponse(
+                        submitted,
+                        requestService.getGraduationEligibility(submitted)
+                )
+        );
     }
 
     @PatchMapping("/{requestId}/decision")
@@ -48,18 +53,25 @@ public class RequestController {
                 decision.remarks()
         );
 
-        return ResponseEntity.ok(RequestDtoMapper.toResponse(processed));
+        return ResponseEntity.ok(
+                RequestDtoMapper.toResponse(
+                        processed,
+                        requestService.getGraduationEligibility(processed)
+                )
+        );
     }
 
     @GetMapping("/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT') "
+            + "or (hasRole('STAFF') and @access.isSelfEmployee(#employeeId))")
     public ResponseEntity<List<RequestResponse>> getByEmployee(
             @PathVariable String employeeId) {
 
         return ResponseEntity.ok(
                 requestService.getByEmployeeId(employeeId)
                         .stream()
-                        .map(RequestDtoMapper::toResponse)
+                        .map(r -> RequestDtoMapper.toResponse(
+                                r, requestService.getGraduationEligibility(r)))
                         .toList()
         );
     }
@@ -74,7 +86,8 @@ public class RequestController {
         return ResponseEntity.ok(
                 requestService.getMyDepartmentRequests(username)
                         .stream()
-                        .map(RequestDtoMapper::toResponse)
+                        .map(r -> RequestDtoMapper.toResponse(
+                                r, requestService.getGraduationEligibility(r)))
                         .toList()
         );
     }
@@ -100,7 +113,8 @@ public class RequestController {
             return ResponseEntity.ok(
                     requestService.getByStatus(status)
                             .stream()
-                            .map(RequestDtoMapper::toResponse)
+                            .map(r -> RequestDtoMapper.toResponse(
+                                    r, requestService.getGraduationEligibility(r)))
                             .toList()
             );
         }
@@ -108,7 +122,8 @@ public class RequestController {
         return ResponseEntity.ok(
                 requestService.getAll()
                         .stream()
-                        .map(RequestDtoMapper::toResponse)
+                        .map(r -> RequestDtoMapper.toResponse(
+                                r, requestService.getGraduationEligibility(r)))
                         .toList()
         );
     }

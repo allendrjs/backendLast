@@ -65,9 +65,11 @@ public class RecordServiceImpl implements RecordService {
             );
         }
 
-        if (!recordRepository.existsById(record.getRecordId())) {
-            throw new NoSuchElementException("Record not found: " + record.getRecordId());
-        }
+        Record existing = recordRepository.findById(record.getRecordId())
+                .orElseThrow(() -> new NoSuchElementException("Record not found: " + record.getRecordId()));
+
+        record.setStatus(existing.getStatus());
+        record.setDateOfResolution(existing.getDateOfResolution());
 
         return recordRepository.save(record);
     }

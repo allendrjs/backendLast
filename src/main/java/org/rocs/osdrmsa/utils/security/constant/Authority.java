@@ -31,4 +31,12 @@ public final class Authority {
             "appeal:read",
             "appeal:update"
     };
+
+    public static final String[] PRINCIPAL_AUTHORITIES = {
+            "record:read"
+    };
+
+    public static final String[] DSS_AUTHORITIES = {
+            "record:read"
+    };
 }

@@ -20,4 +20,6 @@ public interface RequestService {
     List<Request> getMyDepartmentRequests(String username);
 
     String getMyDepartmentName(String username);
+
+    String getGraduationEligibility(Request request);
 }

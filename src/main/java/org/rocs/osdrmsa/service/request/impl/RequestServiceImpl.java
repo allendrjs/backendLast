@@ -13,6 +13,7 @@ import org.rocs.osdrmsa.domain.person.employee.Employee;
 import org.rocs.osdrmsa.domain.request.Request;
 import org.rocs.osdrmsa.domain.request.RequestStatus;
 import org.rocs.osdrmsa.domain.record.Record;
+import org.rocs.osdrmsa.domain.record.RecordStatus;
 import org.rocs.osdrmsa.domain.enrollment.Enrollment;
 import org.rocs.osdrmsa.repository.employee.EmployeeRepository;
 import org.rocs.osdrmsa.repository.login.LoginRepository;
@@ -425,5 +426,58 @@ public class RequestServiceImpl implements RequestService {
         }
 
         return employee.getDepartment().name();
+    }
+
+    @Override
+    public String getGraduationEligibility(Request request) {
+
+        if (request == null
+                || request.getDetails() == null
+                || request.getDetails().isBlank()
+                || request.getType() == null
+                || !request.getType().trim().equalsIgnoreCase("By Student")) {
+            return "UNDER_REVIEW";
+        }
+
+        try {
+            Employee employee =
+                    employeeRepository.findById(request.getEmployeeID())
+                            .orElse(null);
+
+            Department department =
+                    employee != null ? employee.getDepartment() : null;
+
+            if (department == null) {
+                return "UNDER_REVIEW";
+            }
+
+            List<Enrollment> enrollments =
+                    enrollmentRepository.findByStudentStudentIdAndDepartment(
+                            request.getDetails().trim(),
+                            department
+                    );
+
+            if (enrollments.isEmpty()) {
+                return "UNDER_REVIEW";
+            }
+
+            List<Record> records =
+                    recordRepository.findByEnrollmentIn(enrollments);
+
+            boolean hasOpenCase = records.stream().anyMatch(record ->
+                    record.getStatus() == RecordStatus.PENDING
+                            || record.getStatus() == RecordStatus.PROCESSING
+            );
+
+            return hasOpenCase ? "DISQUALIFIED" : "QUALIFIED";
+
+        } catch (Exception e) {
+            log.warn(
+                    "Graduation eligibility computation failed for request {}: {}",
+                    request.getRequestID(),
+                    e.getMessage()
+            );
+            return "UNDER_REVIEW";
+        }
     }
 }

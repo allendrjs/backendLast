@@ -1,4 +1,5 @@
-
+-- Workstream B (requirements 6-9): appeal edit/lock, edited badge, academic
+-- appeal window.
 
 ALTER TABLE appeal ADD EDITED NUMBER(1) DEFAULT 0 NOT NULL;
 ALTER TABLE appeal ADD EDITEDAT DATE;

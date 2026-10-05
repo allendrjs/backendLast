@@ -31,9 +31,11 @@ public class StudentController {
     }
 
     @GetMapping("/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
     public ResponseEntity<List<Student>> getActiveStudents() {
         return ResponseEntity.ok(studentService.getActive());
     }
+
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
     public ResponseEntity<List<Student>> searchStudents(@RequestParam String query) {
@@ -41,31 +43,37 @@ public class StudentController {
     }
 
     @GetMapping("/department/{department}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
     public ResponseEntity<List<Student>> getStudentsByDepartment(@PathVariable Department department) {
         return ResponseEntity.ok(studentService.getByDepartment(department));
     }
 
     @GetMapping("/department/{department}/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
     public ResponseEntity<List<Student>> getActiveStudentsByDepartment(@PathVariable Department department) {
         return ResponseEntity.ok(studentService.getByDepartmentActive(department));
     }
 
     @GetMapping("/{studentId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF') or (hasRole('USER') and @access.isSelfStudent(#studentId))")
     public ResponseEntity<Student> getStudent(@PathVariable String studentId) {
         return studentService.getById(studentId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{studentId}/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF') or (hasRole('USER') and @access.isSelfStudent(#studentId))")
     public ResponseEntity<Student> getActiveStudent(@PathVariable String studentId) {
         return studentService.getActiveById(studentId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/person/{personId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
     public ResponseEntity<Student> getStudentByPersonId(@PathVariable Long personId) {
         return studentService.getByPersonId(personId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
         Student created = studentService.create(student);
 
@@ -73,6 +81,7 @@ public class StudentController {
     }
 
     @PutMapping("/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Student> updateStudent(@PathVariable String studentId, @RequestBody Student student) {
         Student updated = studentService.update(studentId, student);
 
@@ -80,6 +89,7 @@ public class StudentController {
     }
 
     @PatchMapping("/{studentId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Student> updateStudentStatus(@PathVariable String studentId, @RequestBody Map<String, Boolean> request) {
         Boolean active = request.get("isActive");
 
@@ -93,6 +103,7 @@ public class StudentController {
     }
 
     @DeleteMapping("/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteStudent(@PathVariable String studentId) {
         if (studentService.getById(studentId).isEmpty()) {
             return ResponseEntity.notFound().build();
