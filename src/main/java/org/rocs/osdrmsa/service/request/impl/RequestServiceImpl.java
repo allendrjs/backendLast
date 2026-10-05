@@ -78,6 +78,19 @@ public class RequestServiceImpl implements RequestService {
             throw new IllegalArgumentException("Request message is required.");
         }
 
+        String deliveryMethod = request.getDeliveryMethod() == null
+                || request.getDeliveryMethod().isBlank()
+                ? "HARDCOPY"
+                : request.getDeliveryMethod().trim().toUpperCase();
+
+        if (!deliveryMethod.equals("HARDCOPY") && !deliveryMethod.equals("EMAIL")) {
+            throw new IllegalArgumentException(
+                    "Delivery method must be HARDCOPY or EMAIL."
+            );
+        }
+
+        request.setDeliveryMethod(deliveryMethod);
+
         Department department = employee.getDepartment();
 
         if (department == null) {

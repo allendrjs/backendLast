@@ -32,6 +32,9 @@ public class Request {
     @Column(name = "STATUS", nullable = false)
     private RequestStatus status;
 
+    @Column(name = "DELIVERYMETHOD", nullable = false)
+    private String deliveryMethod = "HARDCOPY";
+
     @Column(name = "DATEFILED", nullable = false)
     private LocalDate dateFiled;
 

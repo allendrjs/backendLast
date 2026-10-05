@@ -127,10 +127,11 @@ CREATE TABLE request (
    requestID number(20,0) generated as identity
        constraint REQUEST_NOT_NULL not null,
    employeeID VARCHAR(10) NOT NULL,
-   details VARCHAR(100) NOT NULL,
+   details VARCHAR(1000) NOT NULL,
    message VARCHAR(500) NOT NULL,
    type VARCHAR(100) NOT NULL,
    status VARCHAR(10) NOT NULL,
+   deliveryMethod VARCHAR2(20) DEFAULT 'HARDCOPY' NOT NULL,
    dateFiled DATE,
    dateProcessed DATE,
    remarks VARCHAR(500),
