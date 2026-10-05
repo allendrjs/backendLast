@@ -22,6 +22,8 @@ public interface StudentService {
 
     Optional<Student> getByPersonId(Long personId);
 
+    List<Student> search(String query);
+
     Student create(Student student);
 
     Student update(String studentId, Student student);
