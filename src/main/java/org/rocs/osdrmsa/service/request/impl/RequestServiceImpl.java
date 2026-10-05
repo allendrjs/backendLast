@@ -42,7 +42,6 @@ public class RequestServiceImpl implements RequestService {
     private final AiCaseAnalysisService aiCaseAnalysisService;
     private final EnrollmentRepository enrollmentRepository;
     private final StudentRepository studentRepository;
-    private final org.rocs.osdrmsa.service.notification.NotificationService notificationService;
 
     private static final Logger log =
             LoggerFactory.getLogger(RequestServiceImpl.class);
@@ -284,32 +283,7 @@ public class RequestServiceImpl implements RequestService {
 
         Request saved = requestRepository.save(request);
 
-        notifyRequester(saved, decision, remarks);
-
         return saved;
-    }
-
-    private void notifyRequester(Request request, RequestStatus decision, String remarks) {
-        try {
-            Employee employee =
-                    employeeRepository.findById(request.getEmployeeID()).orElse(null);
-
-            if (employee == null || employee.getPerson() == null) {
-                return;
-            }
-
-            String email = employee.getPerson().getEmail();
-            String name = employee.getPerson().getFirstName();
-
-            notificationService.notifyRequestDecision(
-                    email, name, request.getRequestID(), decision.name(), remarks
-            );
-        } catch (Exception e) {
-            log.warn(
-                    "Failed to notify requester for request {}: {}",
-                    request.getRequestID(), e.getMessage()
-            );
-        }
     }
 
     @Override
