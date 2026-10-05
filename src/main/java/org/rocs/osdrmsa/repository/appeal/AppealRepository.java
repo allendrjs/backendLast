@@ -12,4 +12,6 @@ public interface AppealRepository extends JpaRepository<Appeal, Long> {
     List<Appeal> findByStatus(String status);
 
     List<Appeal> findByEnrollmentStudentStudentId(String studentId);
+
+    List<Appeal> findByRecord_RecordId(Long recordId);
 }

@@ -25,12 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,6 +91,12 @@ public class DocumentServiceImpl implements DocumentService {
         String aiSuggestion = generateCaseSuggestion(document, student, extractedText);
 
         return new DocumentUploadResponse(document.getDocumentId(), extractedText, aiSuggestion);
+    }
+
+    @Override
+    public Document getById(Long documentId) {
+        return documentRepository.findById(documentId)
+                .orElseThrow(() -> new NoSuchElementException("Document not found: " + documentId));
     }
 
     private Student resolveStudent(String username) {
