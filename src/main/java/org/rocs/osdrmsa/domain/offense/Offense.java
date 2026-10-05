@@ -1,8 +1,6 @@
 package org.rocs.osdrmsa.domain.offense;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import lombok.Data;
 
 @Entity
@@ -25,6 +23,5 @@ public class Offense {
     private String description;
 
     @Column(name = "ISACTIVE", nullable = false)
-    @JdbcTypeCode(SqlTypes.INTEGER)
     private Boolean isActive = true;
 }
