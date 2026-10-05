@@ -985,3 +985,8 @@ COMMIT;
 ALTER TABLE login ADD failed_login_attempts NUMBER(10) DEFAULT 0 NOT NULL;
 
 COMMIT;
+
+-- ---- student.isActive (used by Student entity since the active/inactive feature) ----
+ALTER TABLE student ADD isActive NUMBER(1) DEFAULT 1 NOT NULL;
+
+COMMIT;
