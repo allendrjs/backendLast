@@ -62,7 +62,8 @@ public class RequestController {
     }
 
     @GetMapping("/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT') "
+            + "or (hasRole('STAFF') and @access.isSelfEmployee(#employeeId))")
     public ResponseEntity<List<RequestResponse>> getByEmployee(
             @PathVariable String employeeId) {
 

@@ -75,6 +75,16 @@ public class AppealServiceImpl implements AppealService {
             throw new IllegalArgumentException("Appeal message is required.");
         }
 
+        if (record.getEnrollment() == null
+                || record.getEnrollment().getEnrollmentId() == null
+                || !record.getEnrollment().getEnrollmentId().equals(enrollmentId)) {
+            throw new IllegalArgumentException("This offense does not belong to the given enrollment.");
+        }
+
+        if (record.getStatus() != null && record.getStatus() != RecordStatus.PENDING) {
+            throw new IllegalStateException("Only offenses that are still pending can be appealed.");
+        }
+
         boolean hasUnapprovedAppeal = appealRepository.findByRecord_RecordId(recordId).stream()
                 .anyMatch(existing -> !"APPROVED".equalsIgnoreCase(existing.getStatus()));
         if (hasUnapprovedAppeal) {
@@ -180,6 +190,7 @@ public class AppealServiceImpl implements AppealService {
     @Override
     public void approveAppeal(Long appealId, String remarks) {
         Appeal appeal = appealRepository.findById(appealId).orElseThrow(() -> new RuntimeException("Appeal not found."));
+        requirePending(appeal);
 
         appeal.setStatus("APPROVED");
         appeal.setRemarks(remarks);
@@ -201,6 +212,7 @@ public class AppealServiceImpl implements AppealService {
         }
 
         Appeal appeal = appealRepository.findById(appealId).orElseThrow(() -> new RuntimeException("Appeal not found."));
+        requirePending(appeal);
 
         appeal.setStatus("DENIED");
         appeal.setRemarks(remarks);
@@ -213,6 +225,12 @@ public class AppealServiceImpl implements AppealService {
             record.setStatus(RecordStatus.RESOLVED);
             record.setDateOfResolution(LocalDate.now());
             recordRepository.save(record);
+        }
+    }
+
+    private void requirePending(Appeal appeal) {
+        if (!"PENDING".equalsIgnoreCase(appeal.getStatus())) {
+            throw new IllegalStateException("This appeal has already been processed.");
         }
     }
 }

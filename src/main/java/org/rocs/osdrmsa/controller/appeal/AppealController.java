@@ -34,7 +34,8 @@ public class AppealController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') and @access.canFileAppeal("
+            + "#request.recordId(), #request.enrollmentId(), #request.documentId())")
     public ResponseEntity<Appeal> submitAppeal(@RequestBody AppealFileRequest request) {
         Appeal appeal = appealService.submitAppeal(
                 request.recordId(), request.enrollmentId(), request.message(), request.documentId());

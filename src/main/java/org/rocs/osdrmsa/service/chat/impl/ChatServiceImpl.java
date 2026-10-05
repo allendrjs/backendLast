@@ -84,7 +84,10 @@ public class ChatServiceImpl implements ChatService {
         messages.add(new ChatMessageDto("system", SYSTEM_PROMPT + "\n\n" + context));
 
         if (request.history() != null) {
-            messages.addAll(request.history());
+            request.history().stream()
+                    .filter(m -> m != null && m.content() != null
+                            && ("user".equalsIgnoreCase(m.role()) || "assistant".equalsIgnoreCase(m.role())))
+                    .forEach(messages::add);
         }
         messages.add(new ChatMessageDto("user", userMessage));
 

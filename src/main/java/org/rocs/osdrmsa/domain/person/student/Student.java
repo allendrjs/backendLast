@@ -2,6 +2,8 @@ package org.rocs.osdrmsa.domain.person.student;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.Data;
 import org.rocs.osdrmsa.domain.department.Department;
 import org.rocs.osdrmsa.domain.person.Person;
@@ -33,6 +35,7 @@ public class Student {
 
     @JsonProperty("isActive")
     @Column(name = "isActive", nullable = false)
+    @JdbcTypeCode(SqlTypes.INTEGER)
     private boolean isActive = true;
 
     @ManyToMany
