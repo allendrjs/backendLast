@@ -5,12 +5,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-/**
- * Append-only edit history for an appeal. Per the appeal-lifecycle policy,
- * only ROLE_ADMIN can read this directly -- everyone else (student,
- * prefect, dept head) only sees the boolean {@code edited} flag on
- * {@link Appeal} itself.
- */
 @Entity
 @Data
 @Table(name = "APPEAL_EDIT_HISTORY")

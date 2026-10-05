@@ -68,7 +68,6 @@ public class RecordServiceImpl implements RecordService {
         Record existing = recordRepository.findById(record.getRecordId())
                 .orElseThrow(() -> new NoSuchElementException("Record not found: " + record.getRecordId()));
 
-        // An edit must not reset workflow state.
         record.setStatus(existing.getStatus());
         record.setDateOfResolution(existing.getDateOfResolution());
 

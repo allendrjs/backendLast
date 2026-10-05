@@ -29,7 +29,6 @@ public class OwnAccessEvaluator {
     private final DocumentRepository documentRepository;
     private final EmployeeRepository employeeRepository;
 
-    /** True only when the logged-in user is the student who filed this appeal. */
     public boolean isSelfAppeal(Long appealId) {
 
         if (appealId == null) {
@@ -81,10 +80,6 @@ public class OwnAccessEvaluator {
                 .equals(login.getPerson().getPersonId());
     }
 
-    /**
-     * True only when the enrollment, the offense record and (if given) the
-     * attached document all belong to the logged-in student.
-     */
     public boolean canFileAppeal(Long recordId, Long enrollmentId, Long documentId) {
 
         if (recordId == null || enrollmentId == null) {
@@ -117,7 +112,6 @@ public class OwnAccessEvaluator {
         return true;
     }
 
-    /** True when the logged-in staff/prefect account is the given employee. */
     public boolean isSelfEmployee(String employeeId) {
 
         if (employeeId == null || employeeId.isBlank()) {

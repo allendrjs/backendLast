@@ -10,12 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Lets ROLE_ADMIN configure the appeal-filing window (system plan
- * requirement 9) without a code deploy. Read access is open to ADMIN and
- * PREFECT since prefects benefit from seeing when the window closes;
- * writes are ADMIN-only.
- */
 @RestController
 @RequestMapping("/api/academic-periods")
 @RequiredArgsConstructor

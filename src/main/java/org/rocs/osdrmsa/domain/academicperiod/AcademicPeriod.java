@@ -7,12 +7,6 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 
-/**
- * An OSD-configurable academic term window. The appeal-filing window
- * (requirement 9 of the system plan) is enforced against whichever period
- * has {@code active = true}; when none is active, no window restriction
- * is applied.
- */
 @Entity
 @Data
 @Table(name = "ACADEMIC_PERIOD")
