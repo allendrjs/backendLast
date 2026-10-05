@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.dto.request.ChangePasswordRequest;
 import org.rocs.osdrmsa.dto.request.LoginRequest;
+import org.rocs.osdrmsa.dto.response.LockedAccountResponse;
 import org.rocs.osdrmsa.dto.response.LoginResponse;
 import org.rocs.osdrmsa.domain.login.Login;
 import org.rocs.osdrmsa.utils.security.constant.SecurityConstant;
@@ -11,12 +12,9 @@ import org.rocs.osdrmsa.utils.security.jwt.provider.token.JwtService;
 import org.rocs.osdrmsa.service.login.LoginService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -74,11 +72,15 @@ public class LoginController {
         return ResponseEntity.ok().build();
     }
 
-    private String stripBearerPrefix(String header) {
-        if (header != null && header.startsWith(SecurityConstant.TOKEN_PREFIX)) {
-            return header.substring(SecurityConstant.TOKEN_PREFIX.length());
-        }
-        return header;
+    @GetMapping("/locked")
+    public ResponseEntity<List<LockedAccountResponse>> getLockedAccounts() {
+        return ResponseEntity.ok(loginService.getLockedAccounts());
+    }
+
+    @PutMapping("/{username}/unlock")
+    public ResponseEntity<Void> unlockAccount(@PathVariable String username) {
+        loginService.unlockAccount(username);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/change-password")
@@ -98,6 +100,14 @@ public class LoginController {
         loginService.changePassword(username, request.currentPassword(), request.newPassword());
 
         return ResponseEntity.ok().build();
+    }
+
+    private String stripBearerPrefix(String header) {
+        if (header != null && header.startsWith(SecurityConstant.TOKEN_PREFIX)) {
+            return header.substring(SecurityConstant.TOKEN_PREFIX.length());
+        }
+
+        return header;
     }
 }
 

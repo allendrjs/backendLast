@@ -8,46 +8,47 @@ import java.util.Date;
 
 @Entity
 @Data
+@Table(name = "REQUEST")
 public class Request {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "requestID", nullable = false, updatable = false)
+    @Column(name = "REQUESTID", nullable = false, updatable = false)
     private long requestID;
 
-    @Column(name = "employeeID", nullable = false)
+    @Column(name = "EMPLOYEEID", nullable = false)
     private String employeeID;
 
-    @Column(name = "details", nullable = false)
+    @Column(name = "DETAILS", nullable = false)
     private String details;
 
-    @Column(name = "message", nullable = false)
+    @Column(name = "MESSAGE", nullable = false)
     private String message;
 
-    @Column(name = "type", nullable = false)
+    @Column(name = "TYPE", nullable = false)
     private String type;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "STATUS", nullable = false)
     private RequestStatus status;
 
-    @Column(name = "dateFiled", nullable = false)
+    @Column(name = "DATEFILED", nullable = false)
     private LocalDate dateFiled;
 
-    @Column(name = "dateProcessed")
+    @Column(name = "DATEPROCESSED")
     private Date dateProcessed;
 
     @Lob
-    @Column(name = "aiResponse")
+    @Column(name = "AIRESPONSE")
     private String aiResponse;
 
-    @Column(name = "aiRecommendation")
+    @Column(name = "AIRECOMMENDATION")
     private String aiRecommendation;
 
     @Lob
-    @Column(name = "aiReasoning")
+    @Column(name = "AIREASONING")
     private String aiReasoning;
 
-    @Column(name = "remarks")
+    @Column(name = "REMARKS")
     private String remarks;
 }

@@ -2,11 +2,13 @@ package org.rocs.osdrmsa.service.student.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.domain.department.Department;
+import org.rocs.osdrmsa.domain.login.Login;
 import org.rocs.osdrmsa.domain.login.Role;
 import org.rocs.osdrmsa.domain.person.student.Student;
 import org.rocs.osdrmsa.repository.login.LoginRepository;
 import org.rocs.osdrmsa.repository.student.StudentRepository;
 import org.rocs.osdrmsa.service.student.StudentService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final LoginRepository loginRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<Student> getAll() {
@@ -57,7 +60,9 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @Transactional
     public Student create(Student student) {
+
         if (student.getStudentId() == null ||
                 student.getStudentId().isBlank()) {
 
@@ -73,7 +78,54 @@ public class StudentServiceImpl implements StudentService {
             );
         }
 
-        return studentRepository.save(student);
+        if (student.getPerson() == null) {
+            throw new IllegalArgumentException(
+                    "Person information is required."
+            );
+        }
+
+        if (student.getPerson().getLastName() == null ||
+                student.getPerson().getLastName().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Student lastname is required."
+            );
+        }
+
+        if (loginRepository.findByUsername(
+                student.getStudentId()
+        ).isPresent()) {
+
+            throw new IllegalArgumentException(
+                    "Login account for student " +
+                            student.getStudentId() +
+                            " already exists."
+            );
+        }
+
+        Student savedStudent = studentRepository.save(student);
+
+        String initialPassword = savedStudent
+                .getPerson()
+                .getLastName()
+                .replaceAll("\\s+", "")
+                .toLowerCase();
+
+        Login login = new Login();
+
+        login.setUsername(savedStudent.getStudentId());
+        login.setPassword(
+                passwordEncoder.encode(initialPassword)
+        );
+        login.setPerson(savedStudent.getPerson());
+        login.setRole(Role.ROLE_USER);
+        login.setActive(savedStudent.isActive());
+        login.setLocked(false);
+        login.setFailedLoginAttempts(0);
+
+        loginRepository.save(login);
+
+        return savedStudent;
     }
 
     @Override
