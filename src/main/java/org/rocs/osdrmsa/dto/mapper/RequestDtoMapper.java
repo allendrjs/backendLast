@@ -33,7 +33,7 @@ public final class RequestDtoMapper {
                 request.getType(),
                 request.getStatus(),
                 request.getDateFiled(),
-                DateConversion.toLocalDate(request.getDateProcessed()),
+                DateConversion.toLocalDateTime(request.getDateProcessed()),
                 request.getRemarks(),
                 graduationEligibility,
                 request.getDeliveryMethod()

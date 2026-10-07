@@ -7,6 +7,7 @@ import org.rocs.osdrmsa.dto.summary.OffenseSummary;
 import org.rocs.osdrmsa.domain.record.RecordStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record AppealResponse(
         Long appealId,
@@ -16,8 +17,8 @@ public record AppealResponse(
         String message,
         String status,
         String remarks,
-        LocalDate dateSubmitted,
-        LocalDate dateProcessed
+        LocalDateTime dateSubmitted,
+        LocalDateTime dateProcessed
 ) {
     public static record RecordResponse(
             long recordId,
@@ -26,7 +27,7 @@ public record AppealResponse(
             OffenseSummary offense,
             LocalDate dateOfViolation,
             ActionSummary action,
-            LocalDate dateOfResolution,
+            LocalDateTime dateOfResolution,
             String remarks,
             RecordStatus status) {
     }

@@ -13,7 +13,7 @@ import org.rocs.osdrmsa.repository.appeal.AppealRepository;
 import org.rocs.osdrmsa.repository.document.DocumentRepository;
 import org.rocs.osdrmsa.repository.enrollment.EnrollmentRepository;
 import org.rocs.osdrmsa.repository.record.RecordRepository;
-import org.rocs.osdrmsa.service.ai.AiCaseAnalysisService;
+import org.rocs.osdrmsa.service.appeal.AppealAiProcessor;
 import org.rocs.osdrmsa.service.appeal.AppealService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class AppealServiceImpl implements AppealService {
     private final RecordRepository recordRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final DocumentRepository documentRepository;
-    private final AiCaseAnalysisService aiCaseAnalysisService;
+    private final AppealAiProcessor appealAiProcessor;
 
     public AppealServiceImpl(
             AppealRepository appealRepository,
@@ -44,14 +44,14 @@ public class AppealServiceImpl implements AppealService {
             RecordRepository recordRepository,
             EnrollmentRepository enrollmentRepository,
             DocumentRepository documentRepository,
-            AiCaseAnalysisService aiCaseAnalysisService) {
+            AppealAiProcessor appealAiProcessor) {
         this.appealRepository = appealRepository;
         this.appealEditHistoryRepository = appealEditHistoryRepository;
         this.academicPeriodRepository = academicPeriodRepository;
         this.recordRepository = recordRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.documentRepository = documentRepository;
-        this.aiCaseAnalysisService = aiCaseAnalysisService;
+        this.appealAiProcessor = appealAiProcessor;
     }
 
     @Override
@@ -107,49 +107,21 @@ public class AppealServiceImpl implements AppealService {
         appeal.setRecord(record);
         appeal.setEnrollment(enrollment);
         appeal.setMessage(message);
-        appeal.setDateFiled(LocalDate.now());
+        appeal.setDateFiled(LocalDateTime.now());
         appeal.setStatus("PENDING");
 
         if (documentId != null) {
             documentRepository.findById(documentId).ifPresent(appeal::setDocument);
         }
 
-        AiCaseAnalysisService.Result aiResult = analyzeAppeal(record, enrollment, message);
-        appeal.setAiRecommendation(aiResult.recommendation());
-        appeal.setAiReasoning(aiResult.reasoning());
-
         Appeal saved = appealRepository.save(appeal);
 
         record.setStatus(RecordStatus.PROCESSING);
         recordRepository.save(record);
 
+        appealAiProcessor.process(saved.getAppealId());
+
         return saved;
-    }
-
-    private AiCaseAnalysisService.Result analyzeAppeal(Record record, Enrollment enrollment, String message) {
-        try {
-            StringBuilder context = new StringBuilder();
-            context.append("CASE TYPE: Student Appeal\n");
-            context.append("Student ID: ")
-                    .append(enrollment.getStudent() != null ? enrollment.getStudent().getStudentId() : "Unknown")
-                    .append("\n");
-            context.append("Offense: ")
-                    .append(record.getOffense() != null ? record.getOffense().getOffense() : "Unknown")
-                    .append("\n");
-            context.append("Offense Type: ")
-                    .append(record.getOffense() != null ? record.getOffense().getType() : "Unknown")
-                    .append("\n");
-            context.append("Date of Violation: ").append(record.getDateOfViolation()).append("\n");
-            context.append("Record Status: ").append(record.getStatus()).append("\n");
-            context.append("Appeal Message: ").append(message).append("\n");
-
-            String department = enrollment.getDepartment() != null ? enrollment.getDepartment().name() : null;
-
-            return aiCaseAnalysisService.analyze("Student Appeal", department, context.toString());
-        } catch (Exception e) {
-            log.warn("Appeal AI analysis failed: {}", e.getMessage());
-            return new AiCaseAnalysisService.Result("UNCERTAIN", "AI analysis is temporarily unavailable.");
-        }
     }
 
     @Override
@@ -168,7 +140,7 @@ public class AppealServiceImpl implements AppealService {
         String oldMessage = appeal.getMessage();
         appeal.setMessage(newMessage.trim());
         appeal.setEdited(true);
-        appeal.setEditedAt(LocalDate.now());
+        appeal.setEditedAt(LocalDateTime.now());
 
         Appeal saved = appealRepository.save(appeal);
 
@@ -194,7 +166,7 @@ public class AppealServiceImpl implements AppealService {
 
         appeal.setStatus("APPROVED");
         appeal.setRemarks(remarks);
-        appeal.setDateProcessed(LocalDate.now());
+        appeal.setDateProcessed(LocalDateTime.now());
 
         appealRepository.save(appeal);
 
@@ -216,14 +188,14 @@ public class AppealServiceImpl implements AppealService {
 
         appeal.setStatus("DENIED");
         appeal.setRemarks(remarks);
-        appeal.setDateProcessed(LocalDate.now());
+        appeal.setDateProcessed(LocalDateTime.now());
 
         appealRepository.save(appeal);
 
         Record record = appeal.getRecord();
         if (record != null) {
             record.setStatus(RecordStatus.RESOLVED);
-            record.setDateOfResolution(LocalDate.now());
+            record.setDateOfResolution(LocalDateTime.now());
             recordRepository.save(record);
         }
     }

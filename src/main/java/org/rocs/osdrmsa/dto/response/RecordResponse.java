@@ -3,6 +3,7 @@ package org.rocs.osdrmsa.dto.response;
 import org.rocs.osdrmsa.domain.record.RecordStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record RecordResponse(
         Long recordId,
@@ -17,7 +18,7 @@ public record RecordResponse(
         LocalDate dateOfViolation,
         Long actionId,
         String actionName,
-        LocalDate dateOfResolution,
+        LocalDateTime dateOfResolution,
         String remarks,
         RecordStatus status
 ) {

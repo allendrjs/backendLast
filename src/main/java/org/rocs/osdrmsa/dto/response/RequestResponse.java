@@ -2,7 +2,7 @@ package org.rocs.osdrmsa.dto.response;
 
 import org.rocs.osdrmsa.domain.request.RequestStatus;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record RequestResponse(
         long requestId,
@@ -11,8 +11,8 @@ public record RequestResponse(
         String message,
         String type,
         RequestStatus status,
-        LocalDate dateFiled,
-        LocalDate dateProcessed,
+        LocalDateTime dateFiled,
+        LocalDateTime dateProcessed,
         String remarks,
         String graduationEligibility,
         String deliveryMethod) {

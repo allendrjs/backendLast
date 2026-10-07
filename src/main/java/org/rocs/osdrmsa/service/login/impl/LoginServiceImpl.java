@@ -8,6 +8,7 @@ import org.rocs.osdrmsa.exception.AccountLockedException;
 import org.rocs.osdrmsa.exception.InvalidCredentialsException;
 import org.rocs.osdrmsa.repository.login.LoginRepository;
 import org.rocs.osdrmsa.service.login.LoginService;
+import org.rocs.osdrmsa.utils.security.DefaultCredentials;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,9 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class LoginServiceImpl implements LoginService {
+
+    private static final String REACTIVATION_MESSAGE =
+            "Proceed to prefect office to request for account reactivation";
 
     private final LoginRepository loginRepository;
     private final PasswordEncoder passwordEncoder;
@@ -34,7 +38,7 @@ public class LoginServiceImpl implements LoginService {
         Login login = loginRepository.findByUsername(username).orElseThrow(() -> new InvalidCredentialsException("Invalid username or password."));
 
         if (login.isLocked()) {
-            throw new AccountLockedException("This account is locked. Please contact the OSD office.");
+            throw new AccountLockedException(REACTIVATION_MESSAGE);
         }
 
         if (!passwordEncoder.matches(password, login.getPassword())) {
@@ -45,11 +49,11 @@ public class LoginServiceImpl implements LoginService {
 
             if (failedAttempts >= 5) {
                 login.setLocked(true);
+                login.setActive(false);
 
                 loginRepository.save(login);
 
-                throw new AccountLockedException("Your account has been locked after 5 failed login attempts. " +
-                                "Please contact the OSD office.");
+                throw new AccountLockedException(REACTIVATION_MESSAGE);
             }
 
             loginRepository.save(login);
@@ -61,7 +65,7 @@ public class LoginServiceImpl implements LoginService {
         }
 
         if (!login.isActive()) {
-            throw new AccountInactiveException("Your account has expired. Please contact the OSD office.");
+            throw new AccountInactiveException(REACTIVATION_MESSAGE);
         }
 
         login.setFailedLoginAttempts(0);
@@ -83,13 +87,14 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public List<LockedAccountResponse> getLockedAccounts() {
 
-        return loginRepository.findByLockedTrue()
+        return loginRepository.findByLockedTrueOrActiveFalse()
                 .stream()
                 .map(login -> new LockedAccountResponse(
                         login.getUsername(),
                         login.getRole() != null ? login.getRole().name() : null,
                         login.getFailedLoginAttempts(),
-                        login.isLocked()
+                        login.isLocked(),
+                        login.isActive()
                 ))
                 .toList();
     }
@@ -103,12 +108,11 @@ public class LoginServiceImpl implements LoginService {
             throw new IllegalArgumentException("No person record found for this account.");
         }
 
-        String lastName = login.getPerson().getLastName()
-                .replaceAll("\\s+", "")
-                .toLowerCase();
+        String lastName = DefaultCredentials.passwordFor(login.getPerson().getLastName());
 
         login.setPassword(passwordEncoder.encode(lastName));
         login.setLocked(false);
+        login.setActive(true);
         login.setFailedLoginAttempts(0);
 
         loginRepository.save(login);

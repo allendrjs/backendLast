@@ -8,6 +8,7 @@ import org.rocs.osdrmsa.domain.offense.Offense;
 import org.rocs.osdrmsa.domain.person.employee.Employee;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -38,8 +39,8 @@ public class Record {
     @JoinColumn(name = "ACTIONID")
     private DisciplinaryAction action;
 
-    @Column(name = "DATEOFRESOLUTION")
-    private LocalDate dateOfResolution;
+    @Column(name = "DATEOFRESOLUTION", columnDefinition = "DATE")
+    private LocalDateTime dateOfResolution;
 
     @Column(name = "REMARKS")
     private String remarks;

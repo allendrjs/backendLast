@@ -21,4 +21,6 @@ public interface LoginRepository extends JpaRepository<Login, Long> {
     );
 
     List<Login> findByLockedTrue();
+
+    List<Login> findByLockedTrueOrActiveFalse();
 }

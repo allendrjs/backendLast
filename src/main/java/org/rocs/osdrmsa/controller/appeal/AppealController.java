@@ -7,8 +7,10 @@ import org.rocs.osdrmsa.dto.request.AppealFileRequest;
 import org.rocs.osdrmsa.dto.request.AppealRequest;
 import org.rocs.osdrmsa.dto.request.AppealUpdateRequest;
 import org.rocs.osdrmsa.service.appeal.AppealService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,8 +31,11 @@ public class AppealController {
     @GetMapping("/student/{studentId}")
     @PreAuthorize("hasAnyRole('ADMIN','PREFECT','STAFF') "
             + "or (hasRole('USER') and @access.isSelfStudent(#studentId))")
-    public List<Appeal> getAppealsForStudent(@PathVariable String studentId) {
-        return appealService.getAppealsByStudentId(studentId);
+    public List<Appeal> getAppealsForStudent(@PathVariable String studentId, Authentication authentication) {
+        List<Appeal> appeals = appealService.getAppealsByStudentId(studentId);
+        boolean isStudent = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+        return isStudent ? appeals.stream().map(this::withoutAi).toList() : appeals;
     }
 
     @PostMapping
@@ -39,13 +44,13 @@ public class AppealController {
     public ResponseEntity<Appeal> submitAppeal(@RequestBody AppealFileRequest request) {
         Appeal appeal = appealService.submitAppeal(
                 request.recordId(), request.enrollmentId(), request.message(), request.documentId());
-        return ResponseEntity.ok(appeal);
+        return ResponseEntity.ok(withoutAi(appeal));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER') and @access.isSelfAppeal(#id)")
     public ResponseEntity<Appeal> updateAppeal(@PathVariable Long id, @RequestBody AppealUpdateRequest request) {
-        return ResponseEntity.ok(appealService.updateAppeal(id, request.message()));
+        return ResponseEntity.ok(withoutAi(appealService.updateAppeal(id, request.message())));
     }
 
     @GetMapping("/{id}/history")
@@ -68,5 +73,16 @@ public class AppealController {
 
         appealService.denyAppeal(id, request.remarks());
         return ResponseEntity.ok().build();
+    }
+
+    private Appeal withoutAi(Appeal appeal) {
+        if (appeal == null) {
+            return null;
+        }
+        Appeal copy = new Appeal();
+        BeanUtils.copyProperties(appeal, copy);
+        copy.setAiRecommendation(null);
+        copy.setAiReasoning(null);
+        return copy;
     }
 }

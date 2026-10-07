@@ -9,6 +9,7 @@ import org.rocs.osdrmsa.service.record.RecordService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -87,7 +88,7 @@ public class RecordServiceImpl implements RecordService {
         }
 
         record.setStatus(RecordStatus.RESOLVED);
-        record.setDateOfResolution(LocalDate.now());
+        record.setDateOfResolution(LocalDateTime.now());
 
         return recordRepository.save(record);
     }
