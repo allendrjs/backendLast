@@ -168,6 +168,14 @@ public class StudentServiceImpl implements StudentService {
                     )
                     .ifPresent(login -> {
                         login.setActive(active);
+                        if (active) {
+                            if (login.isLocked() && existing.getPerson().getLastName() != null) {
+                                login.setPassword(passwordEncoder.encode(
+                                        DefaultCredentials.passwordFor(existing.getPerson().getLastName())));
+                            }
+                            login.setLocked(false);
+                            login.setFailedLoginAttempts(0);
+                        }
                         loginRepository.save(login);
                     });
         }
