@@ -35,6 +35,9 @@ public class Request {
     @Column(name = "DELIVERYMETHOD", nullable = false)
     private String deliveryMethod = "HARDCOPY";
 
+    @Column(name = "DELIVERYEMAIL", length = 254)
+    private String deliveryEmail;
+
     @Column(name = "DATEFILED", nullable = false, columnDefinition = "DATE")
     private LocalDateTime dateFiled;
 

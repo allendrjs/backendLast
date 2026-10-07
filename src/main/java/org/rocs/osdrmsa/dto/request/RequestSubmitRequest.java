@@ -4,6 +4,7 @@ public record RequestSubmitRequest(
         String details,
         String message,
         String type,
-        String deliveryMethod
+        String deliveryMethod,
+        String deliveryEmail
 ) {
 }
