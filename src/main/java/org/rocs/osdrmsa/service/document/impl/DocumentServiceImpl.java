@@ -16,6 +16,7 @@ import org.rocs.osdrmsa.repository.record.RecordRepository;
 import org.rocs.osdrmsa.repository.student.StudentRepository;
 import org.rocs.osdrmsa.repository.suggestion.GeneratedSuggestionRepository;
 import org.rocs.osdrmsa.repository.suggestion.SuggestionRepository;
+import org.rocs.osdrmsa.service.document.DocumentAiProcessor;
 import org.rocs.osdrmsa.service.document.DocumentService;
 import org.rocs.osdrmsa.utils.ai.AiAnalysisClient;
 import org.rocs.osdrmsa.utils.ai.OllamaClient;
