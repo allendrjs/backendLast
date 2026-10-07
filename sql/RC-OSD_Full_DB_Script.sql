@@ -132,6 +132,7 @@ CREATE TABLE request (
    type VARCHAR(100) NOT NULL,
    status VARCHAR(10) NOT NULL,
    deliveryMethod VARCHAR2(20) DEFAULT 'HARDCOPY' NOT NULL,
+   deliveryEmail VARCHAR2(254),
    dateFiled DATE,
    dateProcessed DATE,
    remarks VARCHAR(500),

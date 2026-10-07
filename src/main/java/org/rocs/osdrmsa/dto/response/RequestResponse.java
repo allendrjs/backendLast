@@ -15,5 +15,6 @@ public record RequestResponse(
         LocalDateTime dateProcessed,
         String remarks,
         String graduationEligibility,
-        String deliveryMethod) {
+        String deliveryMethod,
+        String deliveryEmail) {
 }

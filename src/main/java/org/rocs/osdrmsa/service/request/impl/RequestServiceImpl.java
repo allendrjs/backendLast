@@ -76,6 +76,22 @@ public class RequestServiceImpl implements RequestService {
 
         request.setDeliveryMethod(deliveryMethod);
 
+        if (deliveryMethod.equals("EMAIL")) {
+            String email = request.getDeliveryEmail() == null
+                    ? ""
+                    : request.getDeliveryEmail().trim().toLowerCase();
+
+            if (!email.matches("^[a-z0-9._%+-]+@gmail\\.com$")) {
+                throw new IllegalArgumentException(
+                        "A valid Gmail address is required for email delivery."
+                );
+            }
+
+            request.setDeliveryEmail(email);
+        } else {
+            request.setDeliveryEmail(null);
+        }
+
         Department department = employee.getDepartment();
 
         if (department == null) {

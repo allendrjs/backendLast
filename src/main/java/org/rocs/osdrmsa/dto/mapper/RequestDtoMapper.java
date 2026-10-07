@@ -16,6 +16,7 @@ public final class RequestDtoMapper {
         entity.setMessage(request.message());
         entity.setType(request.type());
         entity.setDeliveryMethod(request.deliveryMethod());
+        entity.setDeliveryEmail(request.deliveryEmail());
 
         return entity;
     }
@@ -36,7 +37,8 @@ public final class RequestDtoMapper {
                 DateConversion.toLocalDateTime(request.getDateProcessed()),
                 request.getRemarks(),
                 graduationEligibility,
-                request.getDeliveryMethod()
+                request.getDeliveryMethod(),
+                request.getDeliveryEmail()
         );
     }
 }
