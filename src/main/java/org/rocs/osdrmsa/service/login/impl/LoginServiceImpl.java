@@ -2,6 +2,7 @@ package org.rocs.osdrmsa.service.login.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.domain.login.Login;
+import org.rocs.osdrmsa.domain.login.Role;
 import org.rocs.osdrmsa.dto.response.LockedAccountResponse;
 import org.rocs.osdrmsa.exception.AccountInactiveException;
 import org.rocs.osdrmsa.exception.AccountLockedException;
@@ -37,11 +38,23 @@ public class LoginServiceImpl implements LoginService {
 
         Login login = loginRepository.findByUsername(username).orElseThrow(() -> new InvalidCredentialsException("Invalid username or password."));
 
-        if (login.isLocked()) {
-            throw new AccountLockedException(REACTIVATION_MESSAGE);
+        boolean admin = login.getRole() == Role.ROLE_ADMIN;
+
+        if (!admin) {
+            if (login.isLocked()) {
+                throw new AccountLockedException(REACTIVATION_MESSAGE);
+            }
+
+            if (!login.isActive()) {
+                throw new AccountInactiveException(REACTIVATION_MESSAGE);
+            }
         }
 
         if (!passwordEncoder.matches(password, login.getPassword())) {
+
+            if (admin) {
+                throw new InvalidCredentialsException("Invalid username or password.");
+            }
 
             int failedAttempts = login.getFailedLoginAttempts() + 1;
 
@@ -64,10 +77,8 @@ public class LoginServiceImpl implements LoginService {
             );
         }
 
-        if (!login.isActive()) {
-            throw new AccountInactiveException(REACTIVATION_MESSAGE);
-        }
-
+        login.setLocked(false);
+        login.setActive(true);
         login.setFailedLoginAttempts(0);
         login.setLastLoginDate(new Date());
 
