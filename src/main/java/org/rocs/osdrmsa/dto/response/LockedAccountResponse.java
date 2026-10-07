@@ -4,6 +4,7 @@ public record LockedAccountResponse(
         String username,
         String role,
         int failedLoginAttempts,
-        boolean locked
+        boolean locked,
+        boolean active
 ) {
 }

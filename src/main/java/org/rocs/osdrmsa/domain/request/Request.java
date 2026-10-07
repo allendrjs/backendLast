@@ -3,7 +3,7 @@ package org.rocs.osdrmsa.domain.request;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -32,8 +32,11 @@ public class Request {
     @Column(name = "STATUS", nullable = false)
     private RequestStatus status;
 
-    @Column(name = "DATEFILED", nullable = false)
-    private LocalDate dateFiled;
+    @Column(name = "DELIVERYMETHOD", nullable = false)
+    private String deliveryMethod = "HARDCOPY";
+
+    @Column(name = "DATEFILED", nullable = false, columnDefinition = "DATE")
+    private LocalDateTime dateFiled;
 
     @Column(name = "DATEPROCESSED")
     private Date dateProcessed;

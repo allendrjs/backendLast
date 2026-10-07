@@ -38,12 +38,6 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Streams back the raw bytes of a previously uploaded appeal letter, so
-     * a prefect/staff/admin client (eventually including the desktop app,
-     * via the offline-first plan's Phase 1 API surface) can view it without
-     * direct database access.
-     */
     @GetMapping("/{documentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PREFECT', 'STAFF')")
     public ResponseEntity<byte[]> download(@PathVariable Long documentId) {

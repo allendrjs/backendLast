@@ -2,11 +2,14 @@ package org.rocs.osdrmsa.service.student.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.rocs.osdrmsa.domain.department.Department;
+import org.rocs.osdrmsa.domain.login.Login;
 import org.rocs.osdrmsa.domain.login.Role;
 import org.rocs.osdrmsa.domain.person.student.Student;
 import org.rocs.osdrmsa.repository.login.LoginRepository;
 import org.rocs.osdrmsa.repository.student.StudentRepository;
 import org.rocs.osdrmsa.service.student.StudentService;
+import org.rocs.osdrmsa.utils.security.DefaultCredentials;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final LoginRepository loginRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<Student> getAll() {
@@ -81,7 +85,36 @@ public class StudentServiceImpl implements StudentService {
             );
         }
 
-        return studentRepository.save(student);
+        Student saved = studentRepository.save(student);
+
+        createLoginIfMissing(saved);
+
+        return saved;
+    }
+
+    private void createLoginIfMissing(Student saved) {
+        if (saved.getPerson() == null
+                || saved.getPerson().getPersonId() == null
+                || saved.getPerson().getLastName() == null) {
+            return;
+        }
+
+        Long personId = saved.getPerson().getPersonId();
+
+        if (loginRepository.findByUsername(saved.getStudentId()).isPresent()
+                || loginRepository.findByPerson_PersonId(personId).isPresent()) {
+            return;
+        }
+
+        Login login = new Login();
+        login.setUsername(saved.getStudentId());
+        login.setPassword(passwordEncoder.encode(
+                DefaultCredentials.passwordFor(saved.getPerson().getLastName())));
+        login.setRole(Role.ROLE_USER);
+        login.setAuthorities("user:read,user:create,user:update");
+        login.setPerson(saved.getPerson());
+
+        loginRepository.save(login);
     }
 
     @Override

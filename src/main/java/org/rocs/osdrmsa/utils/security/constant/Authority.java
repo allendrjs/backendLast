@@ -32,7 +32,6 @@ public final class Authority {
             "appeal:update"
     };
 
-    // Read-only oversight roles — case-report access only, no create/update/delete.
     public static final String[] PRINCIPAL_AUTHORITIES = {
             "record:read"
     };

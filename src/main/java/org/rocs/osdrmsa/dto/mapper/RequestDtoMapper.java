@@ -15,6 +15,7 @@ public final class RequestDtoMapper {
         entity.setDetails(request.details());
         entity.setMessage(request.message());
         entity.setType(request.type());
+        entity.setDeliveryMethod(request.deliveryMethod());
 
         return entity;
     }
@@ -32,9 +33,10 @@ public final class RequestDtoMapper {
                 request.getType(),
                 request.getStatus(),
                 request.getDateFiled(),
-                DateConversion.toLocalDate(request.getDateProcessed()),
+                DateConversion.toLocalDateTime(request.getDateProcessed()),
                 request.getRemarks(),
-                graduationEligibility
+                graduationEligibility,
+                request.getDeliveryMethod()
         );
     }
 }

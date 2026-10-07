@@ -26,6 +26,8 @@ import org.rocs.osdrmsa.repository.enrollment.EnrollmentRepository;
 import org.rocs.osdrmsa.repository.student.StudentRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -38,27 +40,11 @@ public class RequestServiceImpl implements RequestService {
     private final LoginRepository loginRepository;
     private final EmployeeRepository employeeRepository;
     private final RecordRepository recordRepository;
-    private final OllamaClient ollamaClient;
-    private final AiCaseAnalysisService aiCaseAnalysisService;
     private final EnrollmentRepository enrollmentRepository;
     private final StudentRepository studentRepository;
 
     private static final Logger log =
             LoggerFactory.getLogger(RequestServiceImpl.class);
-
-    private static final String AI_SYSTEM_PROMPT = """
-            You are the AI Support Module inside the Rogationist College Office for Student Discipline system.
-            Your job is to provide a short, neutral, informational response to a Department Head's request for disciplinary records.
-
-            Rules:
-            1. Use only the REQUEST CONTEXT provided. Never invent students, records, offenses, dates, or other facts.
-            2. Do not approve or deny the request.
-            3. Do not make disciplinary decisions.
-            4. Explain what records are on file and what the request is asking for.
-            5. If the requested scope contains no matching records, say so clearly.
-            6. Keep the response to 2-4 sentences, plain language, and no headers or bullet points.
-            7. State that the response is informational and does not constitute approval or denial.
-            """;
 
     @Override
     public Request submitRequest(Request request, String username) {
@@ -77,6 +63,19 @@ public class RequestServiceImpl implements RequestService {
             throw new IllegalArgumentException("Request message is required.");
         }
 
+        String deliveryMethod = request.getDeliveryMethod() == null
+                || request.getDeliveryMethod().isBlank()
+                ? "HARDCOPY"
+                : request.getDeliveryMethod().trim().toUpperCase();
+
+        if (!deliveryMethod.equals("HARDCOPY") && !deliveryMethod.equals("EMAIL")) {
+            throw new IllegalArgumentException(
+                    "Delivery method must be HARDCOPY or EMAIL."
+            );
+        }
+
+        request.setDeliveryMethod(deliveryMethod);
+
         Department department = employee.getDepartment();
 
         if (department == null) {
@@ -85,24 +84,14 @@ public class RequestServiceImpl implements RequestService {
             );
         }
 
-        List<Record> matchingRecords =
-                findMatchingRecords(request, department);
+        findMatchingRecords(request, department);
 
         request.setEmployeeID(employee.getEmployeeId());
         request.setRequestID(0);
         request.setStatus(RequestStatus.PENDING);
-        request.setDateFiled(LocalDate.now());
+        request.setDateFiled(LocalDateTime.now());
         request.setDateProcessed(null);
         request.setRemarks(null);
-
-        request.setAiResponse(
-                generateAiResponse(request, matchingRecords)
-        );
-
-        AiCaseAnalysisService.Result aiRecommendation =
-                generateAiRecommendation(request, matchingRecords, department);
-        request.setAiRecommendation(aiRecommendation.recommendation());
-        request.setAiReasoning(aiRecommendation.reasoning());
 
         return requestRepository.save(request);
     }
@@ -116,18 +105,32 @@ public class RequestServiceImpl implements RequestService {
 
         if (type.equalsIgnoreCase("By Student")) {
 
-            List<Enrollment> enrollments =
-                    enrollmentRepository.findByStudentStudentIdAndDepartment(
-                            details,
-                            department
-                    );
+            List<String> studentIds = parseStudentIds(details);
 
-            if (enrollments.isEmpty()) {
+            if (studentIds.isEmpty()) {
                 throw new IllegalArgumentException(
-                        "Student ID '" + details +
-                                "' was not found among the enrolled students " +
-                                "in your department."
+                        "Select at least one student."
                 );
+            }
+
+            List<Enrollment> enrollments = new ArrayList<>();
+
+            for (String studentId : studentIds) {
+                List<Enrollment> found =
+                        enrollmentRepository.findByStudentStudentIdAndDepartment(
+                                studentId,
+                                department
+                        );
+
+                if (found.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "Student ID '" + studentId +
+                                    "' was not found among the enrolled students " +
+                                    "in your department."
+                    );
+                }
+
+                enrollments.addAll(found);
             }
 
             return recordRepository.findByEnrollmentIn(enrollments);
@@ -179,6 +182,14 @@ public class RequestServiceImpl implements RequestService {
         );
     }
 
+    private List<String> parseStudentIds(String details) {
+        return java.util.Arrays.stream(details.split("[,;\\s]+"))
+                .map(String::trim)
+                .filter(id -> !id.isEmpty())
+                .distinct()
+                .toList();
+    }
+
     private String normalizeStudentLevel(String details) {
 
         String normalized = details
@@ -194,112 +205,6 @@ public class RequestServiceImpl implements RequestService {
         }
 
         return normalized;
-    }
-
-    private String buildRequestContext(Request request, List<Record> records) {
-
-        StringBuilder context = new StringBuilder();
-
-        context.append("REQUEST TYPE: ")
-                .append(request.getType())
-                .append("\n");
-
-        context.append("REQUEST DETAILS: ")
-                .append(request.getDetails())
-                .append("\n");
-
-        context.append("REQUEST REASON: ")
-                .append(request.getMessage())
-                .append("\n\n");
-
-        context.append(
-                        "MATCHING DISCIPLINARY RECORDS ON FILE ("
-                ).append(records.size())
-                .append("):\n");
-
-        if (records.isEmpty()) {
-            context.append(
-                    "No disciplinary records are currently on file "
-                            + "for this valid requested scope.\n"
-            );
-        } else {
-            records.stream()
-                    .limit(20)
-                    .forEach(record -> {
-
-                        String studentId =
-                                record.getEnrollment() != null
-                                        && record.getEnrollment().getStudent() != null
-                                        ? record.getEnrollment()
-                                        .getStudent()
-                                        .getStudentId()
-                                        : "Unknown";
-
-                        String offense =
-                                record.getOffense() != null
-                                        ? record.getOffense().getOffense()
-                                        : "Unknown";
-
-                        context.append("- Student: ")
-                                .append(studentId)
-                                .append(", offense: ")
-                                .append(offense)
-                                .append(", violation date: ")
-                                .append(record.getDateOfViolation())
-                                .append(", status: ")
-                                .append(record.getStatus())
-                                .append("\n");
-                    });
-        }
-
-        return context.toString();
-    }
-
-    private String generateAiResponse(
-            Request request,
-            List<Record> records) {
-
-        try {
-            return ollamaClient.chat(
-                    List.of(
-                            new ChatMessageDto(
-                                    "system",
-                                    AI_SYSTEM_PROMPT
-                            ),
-                            new ChatMessageDto(
-                                    "user",
-                                    buildRequestContext(request, records)
-                            )
-                    )
-            );
-
-        } catch (Exception e) {
-
-            log.warn(
-                    "AI Support Module request response generation failed: {}",
-                    e.getMessage()
-            );
-
-            return null;
-        }
-    }
-
-    private AiCaseAnalysisService.Result generateAiRecommendation(
-            Request request,
-            List<Record> records,
-            Department department) {
-
-        try {
-            String context = buildRequestContext(request, records);
-            String departmentName = department != null ? department.name() : null;
-            return aiCaseAnalysisService.analyze("Department Head Request", departmentName, context);
-        } catch (Exception e) {
-            log.warn(
-                    "AI Support Module request recommendation generation failed: {}",
-                    e.getMessage()
-            );
-            return new AiCaseAnalysisService.Result("UNCERTAIN", "AI analysis is temporarily unavailable.");
-        }
     }
 
     @Override
@@ -451,11 +356,16 @@ public class RequestServiceImpl implements RequestService {
                 return "UNDER_REVIEW";
             }
 
-            List<Enrollment> enrollments =
-                    enrollmentRepository.findByStudentStudentIdAndDepartment(
-                            request.getDetails().trim(),
-                            department
-                    );
+            List<Enrollment> enrollments = new ArrayList<>();
+
+            for (String studentId : parseStudentIds(request.getDetails())) {
+                enrollments.addAll(
+                        enrollmentRepository.findByStudentStudentIdAndDepartment(
+                                studentId,
+                                department
+                        )
+                );
+            }
 
             if (enrollments.isEmpty()) {
                 return "UNDER_REVIEW";

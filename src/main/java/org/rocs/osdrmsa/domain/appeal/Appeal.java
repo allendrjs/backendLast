@@ -8,7 +8,7 @@ import org.rocs.osdrmsa.domain.document.Document;
 import org.rocs.osdrmsa.domain.enrollment.Enrollment;
 import org.rocs.osdrmsa.domain.record.Record;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -35,14 +35,14 @@ public class Appeal {
     @Column(name = "MESSAGE")
     private String message;
 
-    @Column(name = "DATEFILED")
-    private LocalDate dateFiled;
+    @Column(name = "DATEFILED", columnDefinition = "DATE")
+    private LocalDateTime dateFiled;
 
     @Column(name = "STATUS")
     private String status;
 
-    @Column(name = "DATEPROCESSED")
-    private LocalDate dateProcessed;
+    @Column(name = "DATEPROCESSED", columnDefinition = "DATE")
+    private LocalDateTime dateProcessed;
 
     @Column(name = "REMARKS")
     private String remarks;
@@ -58,6 +58,6 @@ public class Appeal {
     @Column(name = "EDITED", nullable = false)
     private boolean edited = false;
 
-    @Column(name = "EDITEDAT")
-    private LocalDate editedAt;
+    @Column(name = "EDITEDAT", columnDefinition = "DATE")
+    private LocalDateTime editedAt;
 }
